@@ -48,7 +48,6 @@
     min-height: 100vh;
   }
 
-  /* Skip link */
   .skip-link {
     position: absolute; top: -40px; left: 0;
     background: var(--accent); color: #fff; padding: 8px 16px;
@@ -57,7 +56,6 @@
   }
   .skip-link:focus { top: 0; }
 
-  /* Header */
   header {
     border-bottom: 1px solid var(--border);
     padding: 0 24px;
@@ -65,7 +63,6 @@
     position: sticky; top: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     height: 56px;
-    backdrop-filter: blur(8px);
   }
 
   .logo {
@@ -82,9 +79,7 @@
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   }
 
-  .header-right {
-    display: flex; align-items: center; gap: 12px;
-  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
 
   .last-updated {
     font-family: var(--mono); font-size: 11px;
@@ -100,7 +95,23 @@
   }
   .theme-btn:hover { border-color: var(--border2); color: var(--text); }
 
-  /* Stats row */
+  /* Loading state */
+  .loading-bar {
+    height: 2px; background: var(--border);
+    position: relative; overflow: hidden;
+  }
+  .loading-bar::after {
+    content: '';
+    position: absolute; left: -40%; width: 40%; height: 100%;
+    background: var(--accent);
+    animation: loading 1s infinite linear;
+  }
+  .loading-bar.done { display: none; }
+  @keyframes loading {
+    from { left: -40%; }
+    to { left: 100%; }
+  }
+
   .stats-bar {
     display: flex; gap: 1px;
     border-bottom: 1px solid var(--border);
@@ -126,7 +137,6 @@
   .stat-val.total { color: var(--text); }
   .stat-val.impact { color: var(--yellow); }
 
-  /* Controls */
   .controls {
     padding: 16px 24px;
     display: flex; gap: 12px; flex-wrap: wrap;
@@ -135,9 +145,7 @@
     background: var(--surface2);
   }
 
-  .search-wrap {
-    position: relative; flex: 1; min-width: 200px;
-  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
   .search-icon {
     position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
     color: var(--text3); font-size: 13px; pointer-events: none;
@@ -173,13 +181,9 @@
     cursor: pointer; border-radius: 3px;
     letter-spacing: 0.06em; text-transform: uppercase;
     transition: all .15s; white-space: nowrap;
-    display: flex; align-items: center; gap: 6px;
   }
-  .export-btn:hover {
-    border-color: var(--green); color: var(--green);
-  }
+  .export-btn:hover { border-color: var(--green); color: var(--green); }
 
-  /* Result count */
   .result-count {
     font-family: var(--mono); font-size: 11px;
     color: var(--text3); padding: 8px 24px;
@@ -187,16 +191,9 @@
     background: var(--bg);
   }
 
-  /* Table */
-  .table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-  table {
-    width: 100%; border-collapse: collapse;
-    font-size: 13px;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
 
   thead th {
     background: var(--surface);
@@ -226,32 +223,31 @@
   }
   tbody tr:hover { background: var(--surface2); }
 
-  td {
-    padding: 12px 16px;
-    vertical-align: top;
-  }
+  td { padding: 12px 16px; vertical-align: top; }
 
-  /* Company cell */
-  .company-name {
-    font-weight: 600; font-size: 13px;
-    color: var(--text); margin-bottom: 2px;
-  }
-  .company-sector {
-    font-family: var(--mono); font-size: 10px;
-    color: var(--text3); letter-spacing: 0.04em;
-  }
+  .company-name { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+  .company-sector { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.04em; }
 
-  /* Date */
-  .date-cell {
-    font-family: var(--mono); font-size: 12px;
-    color: var(--text2); white-space: nowrap;
-  }
+  .date-cell { font-family: var(--mono); font-size: 12px; color: var(--text2); white-space: nowrap; }
 
-  /* Category badge */
+  /* Incident type tag */
+  .incident-tag {
+    display: inline-block; padding: 2px 6px;
+    border-radius: 2px; font-family: var(--mono);
+    font-size: 9px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .tag-donation { background: rgba(255,215,64,.1); color: var(--yellow); border: 1px solid rgba(255,215,64,.2); }
+  .tag-contract { background: rgba(255,60,60,.1); color: var(--accent); border: 1px solid rgba(255,60,60,.2); }
+  .tag-investment { background: rgba(45,206,137,.1); color: var(--green); border: 1px solid rgba(45,206,137,.2); }
+  .tag-lobbying { background: rgba(180,79,222,.1); color: var(--both); border: 1px solid rgba(180,79,222,.2); }
+  .tag-bds { background: rgba(74,144,217,.1); color: var(--israel); border: 1px solid rgba(74,144,217,.2); }
+  .tag-other { background: rgba(144,144,176,.1); color: var(--text2); border: 1px solid rgba(144,144,176,.2); }
+
   .badge {
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 8px;
-    border-radius: 2px;
+    padding: 3px 8px; border-radius: 2px;
     font-family: var(--mono); font-size: 10px;
     font-weight: 600; letter-spacing: 0.06em;
     text-transform: uppercase; white-space: nowrap;
@@ -261,48 +257,43 @@
   .badge-both { background: rgba(180,79,222,.15); color: var(--both); border: 1px solid rgba(180,79,222,.3); }
   .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
-  /* Reason */
-  .reason-cell {
-    max-width: 280px; color: var(--text2); line-height: 1.5;
-  }
+  .reason-cell { max-width: 260px; color: var(--text2); line-height: 1.5; }
 
-  /* Impact */
   .impact-cell { white-space: nowrap; }
-  .impact-dots {
-    display: flex; gap: 3px; align-items: center;
-  }
+  .impact-dots { display: flex; gap: 3px; align-items: center; }
   .impact-dot {
     width: 8px; height: 8px; border-radius: 50%;
-    background: var(--border2);
-    transition: background .2s;
+    background: var(--border2); transition: background .2s;
   }
   .impact-dot.filled { background: var(--yellow); }
-  .impact-score {
-    font-family: var(--mono); font-size: 11px;
-    color: var(--text3); margin-left: 6px;
-  }
-  tr:has(.impact-dot.filled:nth-child(5)) .impact-dot.filled { background: var(--accent); }
+  .impact-score { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-left: 6px; }
 
-  /* Source */
   .source-link {
     color: var(--text3); font-family: var(--mono);
     font-size: 11px; text-decoration: none;
     display: inline-flex; align-items: center; gap: 4px;
     transition: color .15s;
-    max-width: 160px; overflow: hidden;
+    max-width: 140px; overflow: hidden;
     text-overflow: ellipsis; white-space: nowrap;
   }
   .source-link:hover { color: var(--text); }
   .source-link::after { content: '↗'; flex-shrink: 0; }
 
-  /* Empty state */
   .empty-state {
     text-align: center; padding: 80px 24px;
     font-family: var(--mono); color: var(--text3);
   }
   .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--text2); }
 
-  /* Footer */
+  /* Error banner */
+  .error-banner {
+    background: rgba(255,60,60,.1); border: 1px solid rgba(255,60,60,.3);
+    color: var(--accent); padding: 12px 24px;
+    font-family: var(--mono); font-size: 12px;
+    display: none;
+  }
+  .error-banner.visible { display: block; }
+
   footer {
     border-top: 1px solid var(--border);
     padding: 24px;
@@ -314,10 +305,7 @@
     font-family: var(--mono); font-size: 11px;
     color: var(--text3); line-height: 1.7;
   }
-  .footer-text a {
-    color: var(--text2); text-decoration: none;
-    border-bottom: 1px solid var(--border2);
-  }
+  .footer-text a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); }
   .footer-text a:hover { color: var(--text); }
   .disclaimer {
     font-family: var(--mono); font-size: 10px;
@@ -325,12 +313,10 @@
     border-left: 2px solid var(--border2); padding-left: 12px;
   }
 
-  /* About modal */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
-    z-index: 1000; align-items: center; justify-content: center;
-    padding: 24px;
+    z-index: 1000; align-items: center; justify-content: center; padding: 24px;
   }
   .modal-overlay.open { display: flex; }
   .modal {
@@ -345,8 +331,7 @@
   }
   .modal-close {
     background: none; border: none; color: var(--text3);
-    cursor: pointer; font-size: 20px; padding: 0;
-    line-height: 1;
+    cursor: pointer; font-size: 20px; padding: 0; line-height: 1;
   }
   .modal-close:hover { color: var(--text); }
   .modal h3 { font-family: var(--mono); font-size: 12px; color: var(--text3);
@@ -355,26 +340,19 @@
   .rubric-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
   .rubric-table td {
     padding: 8px 12px; border: 1px solid var(--border);
-    font-size: 12px; color: var(--text2);
-    font-family: var(--mono);
+    font-size: 12px; color: var(--text2); font-family: var(--mono);
   }
-  .rubric-table td:first-child {
-    width: 40px; font-weight: 600; color: var(--yellow);
-    text-align: center;
-  }
+  .rubric-table td:first-child { width: 40px; font-weight: 600; color: var(--yellow); text-align: center; }
 
-  /* Mobile */
   @media (max-width: 640px) {
     .stats-bar { flex-wrap: wrap; }
     .stat { min-width: 50%; }
     .controls { padding: 12px 16px; }
     td, th { padding: 10px 12px; }
-    .reason-cell { max-width: 180px; }
-    .source-link { max-width: 100px; }
+    .reason-cell { max-width: 160px; }
   }
   @media (max-width: 480px) {
-    thead th:nth-child(5) { display: none; }
-    td:nth-child(5) { display: none; }
+    thead th:nth-child(5), td:nth-child(5) { display: none; }
   }
 </style>
 </head>
@@ -388,46 +366,33 @@
   </div>
   <div class="header-right">
     <span class="last-updated" id="lastUpdated">Loading...</span>
-    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">◐ Theme</button>
+    <button class="theme-btn" onclick="toggleTheme()">◐ Theme</button>
   </div>
 </header>
 
-<div class="stats-bar" role="region" aria-label="Summary statistics">
-  <div class="stat">
-    <span class="stat-val total" id="statTotal">0</span>
-    <span class="stat-label">Total Companies</span>
-  </div>
-  <div class="stat">
-    <span class="stat-val trump" id="statTrump">0</span>
-    <span class="stat-label">Pro-Trump</span>
-  </div>
-  <div class="stat">
-    <span class="stat-val israel" id="statIsrael">0</span>
-    <span class="stat-label">Pro-Israel</span>
-  </div>
-  <div class="stat">
-    <span class="stat-val both" id="statBoth">0</span>
-    <span class="stat-label">Both</span>
-  </div>
-  <div class="stat">
-    <span class="stat-val impact" id="statAvg">0.0</span>
-    <span class="stat-label">Avg. Impact</span>
-  </div>
+<div class="loading-bar" id="loadingBar"></div>
+<div class="error-banner" id="errorBanner"></div>
+
+<div class="stats-bar">
+  <div class="stat"><span class="stat-val total" id="statTotal">—</span><span class="stat-label">Total Companies</span></div>
+  <div class="stat"><span class="stat-val trump" id="statTrump">—</span><span class="stat-label">Pro-Trump</span></div>
+  <div class="stat"><span class="stat-val israel" id="statIsrael">—</span><span class="stat-label">Pro-Israel</span></div>
+  <div class="stat"><span class="stat-val both" id="statBoth">—</span><span class="stat-label">Both</span></div>
+  <div class="stat"><span class="stat-val impact" id="statAvg">—</span><span class="stat-label">Avg. Impact</span></div>
 </div>
 
-<div class="controls" role="search">
+<div class="controls">
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="search" id="searchInput" placeholder="Search companies, reasons, sectors..."
-      aria-label="Search companies" oninput="applyFilters()">
+    <input type="search" id="searchInput" placeholder="Search companies, reasons, sectors..." oninput="applyFilters()">
   </div>
-  <select id="catFilter" onchange="applyFilters()" aria-label="Filter by category">
+  <select id="catFilter" onchange="applyFilters()">
     <option value="">All Categories</option>
     <option value="trump">Pro-Trump</option>
     <option value="israel">Pro-Israel</option>
     <option value="both">Both</option>
   </select>
-  <select id="impactFilter" onchange="applyFilters()" aria-label="Filter by impact">
+  <select id="impactFilter" onchange="applyFilters()">
     <option value="">All Impact Levels</option>
     <option value="5">5 – Severe</option>
     <option value="4">4 – High</option>
@@ -435,32 +400,32 @@
     <option value="2">2 – Low</option>
     <option value="1">1 – Minimal</option>
   </select>
-  <select id="sectorFilter" onchange="applyFilters()" aria-label="Filter by sector">
-    <option value="">All Sectors</option>
+  <select id="typeFilter" onchange="applyFilters()">
+    <option value="">All Incident Types</option>
+    <option value="donation">Donation</option>
+    <option value="contract">Gov't Contract</option>
+    <option value="investment">Investment</option>
+    <option value="lobbying">Lobbying</option>
+    <option value="bds">BDS Target</option>
+    <option value="other">Other</option>
   </select>
-  <button class="export-btn" onclick="exportCSV()" aria-label="Export to CSV">
-    ↓ Export CSV
-  </button>
+  <select id="sectorFilter" onchange="applyFilters()"></select>
+  <button class="export-btn" onclick="exportCSV()">↓ Export CSV</button>
 </div>
 
-<div class="result-count" id="resultCount" role="status" aria-live="polite"></div>
+<div class="result-count" id="resultCount"></div>
 
 <main id="main">
   <div class="table-wrap">
-    <table role="grid" aria-label="Corporate accountability data">
+    <table role="grid">
       <thead>
         <tr>
-          <th onclick="sortBy('company')" id="th-company">
-            Company <span class="sort-arrow">↕</span>
-          </th>
-          <th onclick="sortBy('date')" id="th-date">
-            Date of Incident <span class="sort-arrow">↕</span>
-          </th>
+          <th onclick="sortBy('company')" id="th-company">Company <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('date')" id="th-date">Date <span class="sort-arrow">↕</span></th>
           <th>Category</th>
+          <th>Incident Type</th>
           <th>Reason / Incident</th>
-          <th onclick="sortBy('impact')" id="th-impact">
-            Impact <span class="sort-arrow">↕</span>
-          </th>
+          <th onclick="sortBy('impact')" id="th-impact">Impact <span class="sort-arrow">↕</span></th>
           <th>Source</th>
         </tr>
       </thead>
@@ -475,466 +440,125 @@
 
 <footer>
   <div class="footer-text">
-    Corporate Accountability Tracker · Built per PRD by Cristian Mitchell<br>
-    Data sourced from FEC, OpenSecrets, AFSC, USCPR, More Perfect Union · <a href="#" onclick="openAbout();return false;">About & Methodology</a>
+    Corporate Accountability Tracker · Data sourced from FEC, OpenSecrets, AFSC, USCPR, More Perfect Union<br>
+    Updated daily at 7:00 AM CT · <a href="#" onclick="openAbout();return false;">About & Methodology</a>
   </div>
   <div class="disclaimer">
-    For informational purposes only. All entries cite verifiable public records. Statements reflect documented donations, contracts, or NGO designations — not editorial opinion.
+    For informational purposes only. All entries cite verifiable public records. Statements reflect documented donations, contracts, investments, or NGO designations — not editorial opinion.
   </div>
 </footer>
 
-<!-- About Modal -->
-<div class="modal-overlay" id="aboutModal" role="dialog" aria-modal="true" aria-label="About and Methodology">
+<div class="modal-overlay" id="aboutModal" role="dialog" aria-modal="true">
   <div class="modal">
-    <h2>
-      About & Methodology
-      <button class="modal-close" onclick="closeAbout()" aria-label="Close">×</button>
-    </h2>
+    <h2>About & Methodology <button class="modal-close" onclick="closeAbout()">×</button></h2>
     <h3>Purpose</h3>
-    <p>This tracker provides a transparent, searchable registry of U.S. corporations identified as financially or politically supportive of Donald Trump, the State of Israel/Zionist causes, or both — grounded in verifiable public records.</p>
+    <p>Transparent, searchable registry of U.S. corporations identified as financially or politically supportive of Donald Trump, the State of Israel/Zionist causes, or both — grounded in verifiable public records. Tracks donations, government contracts, investments, lobbying, and BDS designations.</p>
     <h3>Impact Score Rubric</h3>
     <table class="rubric-table">
       <tr><td>5</td><td>≥$2M donated to Trump inauguration AND/OR direct weapons/major infrastructure contracts to Israeli military</td></tr>
-      <tr><td>4</td><td>$1M–$2M Trump donation OR top BDS priority target</td></tr>
-      <tr><td>3</td><td>&lt;$1M Trump donation OR moderate Israel ties (subsidiary contracts, lobbying, R&D)</td></tr>
-      <tr><td>2</td><td>PAC/industry-association support or minimal lobbying; no direct donations or contracts</td></tr>
-      <tr><td>1</td><td>Indirect or peripheral involvement; no disclosed political activity</td></tr>
+      <tr><td>4</td><td>$1M–$2M Trump donation OR top BDS priority target OR major defense investment benefiting from admin agenda</td></tr>
+      <tr><td>3</td><td>&lt;$1M Trump donation OR moderate Israel ties OR significant lobbying win under Trump</td></tr>
+      <tr><td>2</td><td>PAC/industry-association support, minor lobbying, or indirect investment ties</td></tr>
+      <tr><td>1</td><td>Indirect or peripheral involvement; no disclosed direct political activity</td></tr>
     </table>
+    <h3>Incident Types</h3>
+    <p><strong>Donation</strong> — Direct financial contributions to Trump campaigns or inauguration fund. <strong>Contract</strong> — Government or defense contracts awarded under Trump administration or weapons supplied to Israel. <strong>Investment</strong> — Financial ties, equity stakes, or economic activity that benefits from the administration's agenda. <strong>Lobbying</strong> — Registered lobbying activity supporting deregulation or policy positions aligned with Trump or Israeli government. <strong>BDS Target</strong> — Designated by USCPR, AFSC, or UN as complicit in Israeli occupation or military operations.</p>
     <h3>Data Sources</h3>
-    <p>Federal Election Commission (FEC) / OpenSecrets · More Perfect Union "Corporate Colluders" · USCPR BDS Boycott List · AFSC Gaza Genocide Companies · Brennan Center · White House Ballroom Donors · Al Jazeera / Mondoweiss UN report coverage · CNBC inauguration donor reporting.</p>
+    <p>FEC / OpenSecrets · More Perfect Union · USCPR BDS Boycott List · AFSC Gaza Genocide Companies · Brennan Center · White House Ballroom Donors · Al Jazeera / Mondoweiss UN reports · CNBC inauguration donor reporting.</p>
     <h3>Update Schedule</h3>
-    <p>Data refreshes daily at 7:00 AM CT. The "Last Updated" timestamp reflects the most recent dataset version. To submit a correction or new entry with a primary source, contact the site maintainer.</p>
-    <h3>Disclaimer</h3>
-    <p>This site is for informational purposes only. All statements are fact-based and sourced. Inclusion on this list does not constitute a legal finding of wrongdoing.</p>
+    <p>An AI agent runs daily at 7:00 AM CT, searching FEC filings, NGO reports, and news sources for new incidents. All entries are scored and written to the database automatically. Historical incidents remain permanently logged.</p>
   </div>
 </div>
 
 <script>
-// ─── DATA ────────────────────────────────────────────────────────────────────
-// To update: edit this array and redeploy. Future: fetch from external JSON.
-const companies = [
-  {
-    company: "Amazon", sector: "Technology / Retail",
-    date: "2025-01-10", category: "both",
-    reason: "Jeff Bezos donated $1M to Trump's 2025 inauguration fund. Amazon Web Services maintains contracts with Israeli government and military intelligence. Amazon's Project Nimbus provides cloud infrastructure to Israeli Defense Ministry.",
-    impact: 5,
-    source: "https://www.opensecrets.org/trump/2025-inauguration-donors",
-    sourceLabel: "OpenSecrets"
-  },
-  {
-    company: "Meta (Facebook)", sector: "Technology / Social Media",
-    date: "2025-01-10", category: "trump",
-    reason: "Mark Zuckerberg personally donated $1M to Trump's 2025 inauguration fund. Zuckerberg met privately with Trump at Mar-a-Lago and softened Meta's content moderation policies.",
-    impact: 5,
-    source: "https://www.cnbc.com/2025/04/23/trump-inauguration-donors-include-meta-amazon-target-delta-ford.html",
-    sourceLabel: "CNBC"
-  },
-  {
-    company: "Boeing", sector: "Defense / Aerospace",
-    date: "2024-10-07", category: "israel",
-    reason: "Supplier of MK-84 2,000-lb bombs and F-15 fighter jets used in Israeli military operations in Gaza. Named in AFSC's Companies Profiting from the Gaza Genocide report and targeted by BDS campaign.",
-    impact: 5,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Lockheed Martin", sector: "Defense",
-    date: "2024-10-07", category: "israel",
-    reason: "Major supplier of F-35 fighter jets and other weapons systems used by Israeli Air Force. Listed in AFSC Gaza genocide companies report. Supplies munitions used in Gaza operations.",
-    impact: 5,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Google (Alphabet)", sector: "Technology",
-    date: "2024-04-17", category: "israel",
-    reason: "Project Nimbus: $1.2B cloud and AI contract with Israeli government and military. Employees staged walkouts over the contract. Project provides AI and data analytics capabilities to Israeli Defense Ministry.",
-    impact: 5,
-    source: "https://www.aljazeera.com/news/2025/7/1/un-report-lists-companies-complicit-in-israels-genocide-who-are-they",
-    sourceLabel: "Al Jazeera"
-  },
-  {
-    company: "Microsoft", sector: "Technology",
-    date: "2024-10-07", category: "israel",
-    reason: "Azure cloud services provided to Israeli military and intelligence agencies. Listed in AFSC report. Employees protested company's ties to Israeli defense contracts. UN report cited Microsoft's role.",
-    impact: 5,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Target", sector: "Retail",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. Target's CEO signed onto inaugural business roundtable supporting Trump's economic agenda following $1M corporate donation.",
-    impact: 4,
-    source: "https://www.cnbc.com/2025/04/23/trump-inauguration-donors-include-meta-amazon-target-delta-ford.html",
-    sourceLabel: "CNBC"
-  },
-  {
-    company: "Delta Air Lines", sector: "Aviation / Travel",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. CEO Ed Bastian attended inauguration events. Delta contributed to PACs supporting Trump-aligned candidates during 2024 election cycle.",
-    impact: 4,
-    source: "https://www.cnbc.com/2025/04/23/trump-inauguration-donors-include-meta-amazon-target-delta-ford.html",
-    sourceLabel: "CNBC"
-  },
-  {
-    company: "Ford Motor Company", sector: "Automotive",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. Ford CEO Jim Farley met with Trump at Mar-a-Lago and expressed support for Trump's tariff and manufacturing policies.",
-    impact: 4,
-    source: "https://www.cnbc.com/2025/04/23/trump-inauguration-donors-include-meta-amazon-target-delta-ford.html",
-    sourceLabel: "CNBC"
-  },
-  {
-    company: "Caterpillar", sector: "Heavy Equipment / Manufacturing",
-    date: "2024-10-07", category: "israel",
-    reason: "Top BDS boycott priority. Caterpillar D9 armored bulldozers used by Israeli Defense Forces to demolish Palestinian homes and infrastructure. Repeated boycott calls since 2004 Rachel Corrie case.",
-    impact: 4,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "Hewlett-Packard (HP)", sector: "Technology",
-    date: "2025-01-01", category: "israel",
-    reason: "Listed as BDS priority target. HP provides biometric systems and facial recognition technology used at Israeli military checkpoints in the West Bank. HP Government division holds Israeli military contracts.",
-    impact: 4,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "Intel", sector: "Technology / Semiconductors",
-    date: "2025-01-01", category: "israel",
-    reason: "Intel operates major R&D centers and a chip fab in Israel, generating billions in Israeli economic activity. Designated as BDS priority target due to deep integration with Israeli defense-technology ecosystem.",
-    impact: 4,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "General Dynamics", sector: "Defense",
-    date: "2024-10-07", category: "israel",
-    reason: "Supplier of 155mm artillery shells and armored vehicles to Israel. Named in AFSC Gaza genocide report and UN investigation into companies profiting from Israeli military operations.",
-    impact: 5,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Raytheon (RTX)", sector: "Defense",
-    date: "2024-10-07", category: "israel",
-    reason: "Manufactures Hellfire missiles, Patriot air defense systems, and other weapons actively used by Israeli military in Gaza operations. Raytheon is a primary defense contractor to Israel, listed by AFSC.",
-    impact: 5,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Chevron", sector: "Energy / Oil & Gas",
-    date: "2025-01-10", category: "both",
-    reason: "Donated to Trump's 2025 inauguration fund. Chevron has natural gas extraction rights in Israeli-claimed Mediterranean waters (Leviathan field). Supports Trump's deregulation of fossil fuel sector.",
-    impact: 4,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Goldman Sachs", sector: "Finance / Banking",
-    date: "2025-01-10", category: "both",
-    reason: "Donated to Trump's 2025 inauguration fund per Brennan Center's million-dollar donor analysis. Goldman Sachs has significant underwriting relationships with Israeli government bonds and defense firms.",
-    impact: 4,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Bank of America", sector: "Finance / Banking",
-    date: "2025-01-10", category: "trump",
-    reason: "Contributed to Trump's 2025 inauguration fund. CEO Brian Moynihan attended Trump economic roundtables. Bank of America provided major financial services for inauguration-related events.",
-    impact: 3,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "JPMorgan Chase", sector: "Finance / Banking",
-    date: "2025-01-10", category: "trump",
-    reason: "Jamie Dimon met with Trump at Mar-a-Lago post-election. JPMorgan provided banking infrastructure for inauguration fund processing. Dimon expressed support for Trump's deregulatory agenda.",
-    impact: 3,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Walmart", sector: "Retail",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. Walmart CEO Doug McMillon participated in Trump CEO roundtable and pledged cooperation on domestic manufacturing initiatives.",
-    impact: 3,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Exxon Mobil", sector: "Energy / Oil & Gas",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. ExxonMobil strongly supported Trump's withdrawal from Paris Climate Agreement and expansion of domestic drilling. CEO Darren Woods attended inaugural events.",
-    impact: 4,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Uber", sector: "Technology / Transportation",
-    date: "2025-01-10", category: "trump",
-    reason: "Uber CEO Dara Khosrowshahi donated to and attended Trump's 2025 inauguration events. Uber contributed to PACs supporting Trump administration's gig-economy deregulation agenda.",
-    impact: 3,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Elbit Systems of America", sector: "Defense Technology",
-    date: "2024-10-07", category: "israel",
-    reason: "U.S. subsidiary of Israeli weapons manufacturer Elbit Systems. Supplies drones, surveillance systems, and munitions directly to Israeli military. Primary target of BDS and anti-genocide activists.",
-    impact: 5,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "L3Harris Technologies", sector: "Defense Electronics",
-    date: "2024-10-07", category: "israel",
-    reason: "Provides surveillance and targeting systems used by Israeli Air Force. Named in AFSC report and UN inquiry into companies supplying technology enabling military operations in Gaza.",
-    impact: 4,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Northrop Grumman", sector: "Defense",
-    date: "2024-10-07", category: "israel",
-    reason: "Supplies ammunition, electronic warfare systems, and propulsion for Israeli military aircraft and munitions. Listed in AFSC Gaza genocide report. Target of student divestment campaigns at multiple universities.",
-    impact: 5,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "JBS (Pilgrim's Pride)", sector: "Food / Agriculture",
-    date: "2025-01-10", category: "trump",
-    reason: "Parent company JBS SA's U.S. subsidiary Pilgrim's Pride listed as pro-Trump colluder by More Perfect Union. Donated to Trump-affiliated PACs and lobbied against labor and environmental regulations under Trump.",
-    impact: 2,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Maersk", sector: "Shipping / Logistics",
-    date: "2024-10-07", category: "israel",
-    reason: "Major shipping carrier identified in AFSC report for continuing logistics operations supporting Israeli military supply chains. Provides container shipping services for defense-related cargo to Israeli ports.",
-    impact: 4,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Palantir Technologies", sector: "AI / Data Analytics",
-    date: "2024-10-07", category: "both",
-    reason: "Provides AI-powered intelligence software (Gotham platform) to Israeli military for targeting and surveillance. Palantir CEO Alex Karp is vocal Trump supporter; company won multiple U.S. defense contracts under Trump.",
-    impact: 5,
-    source: "https://mondoweiss.net/2025/07/new-un-report-reveals-the-companies-getting-rich-off-israeli-occupation-and-genocide/",
-    sourceLabel: "Mondoweiss / UN"
-  },
-  {
-    company: "IAI (Israel Aerospace – US ops)", sector: "Defense / Aerospace",
-    date: "2024-10-07", category: "israel",
-    reason: "U.S.-based operations of Israeli state defense manufacturer. Supplies drone systems and air defense platforms to Israel. Named in UN and AFSC reports among companies profiting from Gaza operations.",
-    impact: 5,
-    source: "https://afsc.org/gaza-genocide-companies",
-    sourceLabel: "AFSC"
-  },
-  {
-    company: "Priceline / Booking Holdings", sector: "Travel / Technology",
-    date: "2025-01-01", category: "israel",
-    reason: "Lists Israeli settlements in the West Bank as available lodging destinations. BDS boycott target for normalizing and profiting from settlement tourism in internationally recognized occupied territory.",
-    impact: 3,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "Airbnb", sector: "Travel / Technology",
-    date: "2018-11-19", category: "israel",
-    reason: "Initially agreed to remove West Bank settlement listings under BDS pressure in 2018, then reversed the decision in 2019. Continues to list properties in occupied Palestinian territories. BDS target.",
-    impact: 2,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "RE/MAX", sector: "Real Estate",
-    date: "2025-01-01", category: "israel",
-    reason: "RE/MAX Israel franchises actively market and sell properties in Israeli settlements in the West Bank in violation of international law. Listed as BDS target for complicity in settlement expansion.",
-    impact: 3,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "Visa", sector: "Finance / Payments",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund per Brennan Center analysis. Visa lobbied for Trump administration regulatory positions on financial technology and cross-border payment oversight.",
-    impact: 2,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Mastercard", sector: "Finance / Payments",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. Mastercard's CEO participated in Trump-era financial deregulation roundtables and signed onto joint statements supporting administration priorities.",
-    impact: 2,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Pfizer", sector: "Pharmaceuticals",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. Pfizer's lobbying aligned with Trump's HHS priorities. Pfizer CEO met with Trump transition team regarding drug pricing executive orders.",
-    impact: 2,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "IBM", sector: "Technology / Consulting",
-    date: "2025-01-01", category: "israel",
-    reason: "IBM subsidiary Aspera and Watson AI services contracted with Israeli government agencies. IBM Israel is a major tech partner to Israeli defense sector R&D. Listed in UN corporate complicity inquiry.",
-    impact: 3,
-    source: "https://mondoweiss.net/2025/07/new-un-report-reveals-the-companies-getting-rich-off-israeli-occupation-and-genocide/",
-    sourceLabel: "Mondoweiss / UN"
-  },
-  {
-    company: "Oracle", sector: "Technology / Cloud",
-    date: "2025-01-10", category: "both",
-    reason: "Oracle co-CEO Larry Ellison is a major Trump donor and hosted Trump fundraiser at his Hawaii estate. Oracle provides cloud computing services to Israeli military and intelligence agencies.",
-    impact: 4,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Motorola Solutions", sector: "Communications Technology",
-    date: "2025-01-01", category: "israel",
-    reason: "Provides surveillance and communications equipment used by Israeli military at West Bank checkpoints and settlement perimeters. Major BDS target; listed in USCPR and AFSC reports.",
-    impact: 4,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "Citigroup", sector: "Finance / Banking",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. Citi CEO Jane Fraser participated in Trump CEO forums. Citigroup lobbied for rollback of banking regulations under Trump administration.",
-    impact: 2,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Comcast (NBCUniversal)", sector: "Media / Telecommunications",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. NBCUniversal joined other media companies in reducing adversarial coverage following Trump inauguration. Comcast settled lawsuit with Trump ally.",
-    impact: 3,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "ExxonMobil (subsidiary XTO)", sector: "Energy",
-    date: "2025-01-10", category: "trump",
-    reason: "XTO Energy subsidiary also listed separately by More Perfect Union. XTO's natural gas operations benefited directly from Trump's rollback of EPA methane regulations.",
-    impact: 2,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Wix.com", sector: "Technology / Web Services",
-    date: "2025-01-01", category: "israel",
-    reason: "Israeli-founded tech company with R&D operations in Tel Aviv that provide tech support and tax base for Israeli economy. BDS target for Israeli economic ties and refusal to divest Israeli operations.",
-    impact: 1,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "American Express", sector: "Finance / Payments",
-    date: "2025-01-10", category: "trump",
-    reason: "Donated to Trump's 2025 inauguration fund. AmEx CEO Stephen Squeri attended Trump economic roundtables and expressed support for financial deregulation agenda.",
-    impact: 2,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Koch Industries", sector: "Conglomerate / Energy",
-    date: "2025-01-10", category: "trump",
-    reason: "Koch network PACs contributed to Trump-aligned Senate and House campaigns. Koch Industries lobbied heavily for Trump deregulatory priorities across energy, agriculture, and manufacturing sectors.",
-    impact: 3,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Verizon", sector: "Telecommunications",
-    date: "2025-01-10", category: "trump",
-    reason: "Verizon donated to Trump's 2025 inauguration fund and lobbied for FCC deregulation under Trump appointees. CEO Hans Vestberg participated in Trump economic advisory sessions.",
-    impact: 2,
-    source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration",
-    sourceLabel: "Brennan Center"
-  },
-  {
-    company: "Deloitte", sector: "Consulting / Professional Services",
-    date: "2025-01-10", category: "trump",
-    reason: "Listed by More Perfect Union as a corporate colluder. Deloitte won significant federal consulting contracts under Trump administration and donated to inauguration fund through affiliated partners.",
-    impact: 2,
-    source: "https://perfectunion.us/trumps-corporate-colluders/",
-    sourceLabel: "More Perfect Union"
-  },
-  {
-    company: "Starbucks", sector: "Food & Beverage",
-    date: "2025-01-01", category: "israel",
-    reason: "BDS target following Starbucks Workers United union expressing solidarity with Palestinians. Starbucks sued its union. Starbucks Israel franchise continues operations. Consumer boycott caused reported sales decline.",
-    impact: 2,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "McDonald's", sector: "Food & Beverage",
-    date: "2025-01-01", category: "israel",
-    reason: "McDonald's Israel franchise provided free meals to Israeli Defense Forces during Gaza operations. Global BDS boycott campaign caused reported sales losses. Company maintained Israeli franchise operations.",
-    impact: 3,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "Puma", sector: "Apparel / Sports",
-    date: "2025-01-01", category: "israel",
-    reason: "Puma sponsors the Israeli Football Association, which includes teams in West Bank settlements. Listed as BDS priority target. Campaign led to Puma dropping its IFA sponsorship announcement in 2022, though ties persist.",
-    impact: 2,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "SodaStream (PepsiCo)", sector: "Consumer Goods",
-    date: "2025-01-01", category: "israel",
-    reason: "SodaStream, owned by PepsiCo, operated its primary factory in an Israeli settlement in the West Bank until 2015. BDS target; PepsiCo acquisition of SodaStream extended boycott calls to the parent brand.",
-    impact: 2,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  },
-  {
-    company: "Sabra Dipping Company", sector: "Food / Consumer Goods",
-    date: "2025-01-01", category: "israel",
-    reason: "Jointly owned by PepsiCo and Israeli company Strauss Group, whose other division has donated to Israeli military units. Primary BDS consumer boycott target due to Strauss's direct military support.",
-    impact: 3,
-    source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/",
-    sourceLabel: "USCPR BDS List"
-  }
-];
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://atkwxcjdniyhd kadhlic.supabase.co'.replace(' ', '');
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF0a3d4Y2pkbml5aGRrYWRobGljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NDE2MDAsImV4cCI6MjA5MTUxNzYwMH0.pTWS7f0VicCur4Yy0PEM8btkrvQKCjbBBR8B60MS78s';
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
+let allData = [];
+let filtered = [];
 let sortCol = 'impact';
-let sortDir = -1; // -1 = desc, 1 = asc
-let filtered = [...companies];
+let sortDir = -1;
+
+// ─── FETCH FROM SUPABASE ──────────────────────────────────────────────────────
+async function fetchData() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/companies?select=*&order=impact.desc,date.desc`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    showError(`Failed to load data: ${err.message}. Retrying in 30s...`);
+    setTimeout(fetchData, 30000);
+    return [];
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorBanner');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  const data = await fetchData();
+  document.getElementById('loadingBar').classList.add('done');
+
+  if (data.length === 0) {
+    // Seed with initial dataset if DB is empty
+    showError('Database appears empty. Please run the seeder script.');
+    return;
+  }
+
+  allData = data;
   populateSectors();
   applyFilters();
+  updateStats();
   setLastUpdated();
   scheduleNextRefresh();
 });
 
+// ─── REFRESH AT 7AM CT ────────────────────────────────────────────────────────
+function scheduleNextRefresh() {
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(7, 0, 0, 0);
+  if (now >= next) next.setDate(next.getDate() + 1);
+  setTimeout(async () => {
+    allData = await fetchData();
+    applyFilters();
+    updateStats();
+    setLastUpdated();
+    scheduleNextRefresh();
+  }, next - now);
+}
+
+function setLastUpdated() {
+  const now = new Date();
+  document.getElementById('lastUpdated').textContent =
+    'Updated: ' + now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+    + ' · ' + now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', timeZoneName:'short' });
+}
+
+// ─── FILTERS & SORT ───────────────────────────────────────────────────────────
 function populateSectors() {
-  const sectors = [...new Set(companies.map(c => c.sector))].sort();
+  const sectors = [...new Set(allData.map(c => c.sector).filter(Boolean))].sort();
   const sel = document.getElementById('sectorFilter');
+  sel.innerHTML = '<option value="">All Sectors</option>';
   sectors.forEach(s => {
     const o = document.createElement('option');
-    o.value = s; o.textContent = s;
-    sel.appendChild(o);
+    o.value = s; o.textContent = s; sel.appendChild(o);
   });
 }
 
@@ -942,14 +566,16 @@ function applyFilters() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   const cat = document.getElementById('catFilter').value;
   const impact = document.getElementById('impactFilter').value;
+  const type = document.getElementById('typeFilter').value;
   const sector = document.getElementById('sectorFilter').value;
 
-  filtered = companies.filter(c => {
+  filtered = allData.filter(c => {
     if (cat && c.category !== cat) return false;
     if (impact && c.impact !== +impact) return false;
+    if (type && c.incident_type !== type) return false;
     if (sector && c.sector !== sector) return false;
     if (q) {
-      const hay = `${c.company} ${c.sector} ${c.reason} ${c.sourceLabel}`.toLowerCase();
+      const hay = `${c.company} ${c.sector} ${c.reason} ${c.source_label}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -957,7 +583,6 @@ function applyFilters() {
 
   sortData();
   renderTable();
-  updateStats();
 }
 
 function sortBy(col) {
@@ -969,77 +594,81 @@ function sortBy(col) {
     th.classList.add('sorted');
     th.querySelector('.sort-arrow').textContent = sortDir === 1 ? '↑' : '↓';
   }
-  sortData();
-  renderTable();
+  sortData(); renderTable();
 }
 
 function sortData() {
   filtered.sort((a, b) => {
     let av, bv;
-    if (sortCol === 'company') { av = a.company.toLowerCase(); bv = b.company.toLowerCase(); }
-    else if (sortCol === 'date') { av = a.date; bv = b.date; }
-    else { av = a.impact; bv = b.impact; }
-    if (av < bv) return -1 * sortDir;
-    if (av > bv) return 1 * sortDir;
-    return 0;
+    if (sortCol === 'company') { av = (a.company||'').toLowerCase(); bv = (b.company||'').toLowerCase(); }
+    else if (sortCol === 'date') { av = a.date||''; bv = b.date||''; }
+    else { av = a.impact||0; bv = b.impact||0; }
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
   });
 }
 
+// ─── RENDER ───────────────────────────────────────────────────────────────────
 function renderTable() {
   const tbody = document.getElementById('tableBody');
   const empty = document.getElementById('emptyState');
-  const rc = document.getElementById('resultCount');
+  document.getElementById('resultCount').textContent =
+    `Showing ${filtered.length} of ${allData.length} companies`;
 
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
-    rc.textContent = '0 results';
-    return;
-  }
+  if (!filtered.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
-  rc.textContent = `Showing ${filtered.length} of ${companies.length} companies`;
 
   tbody.innerHTML = filtered.map((c, i) => `
-    <tr style="animation-delay:${Math.min(i * 0.02, 0.3)}s">
+    <tr style="animation-delay:${Math.min(i * 0.02, 0.4)}s">
       <td>
         <div class="company-name">${esc(c.company)}</div>
-        <div class="company-sector">${esc(c.sector)}</div>
+        <div class="company-sector">${esc(c.sector||'')}</div>
       </td>
       <td class="date-cell">${formatDate(c.date)}</td>
       <td>${badge(c.category)}</td>
-      <td class="reason-cell">${esc(c.reason)}</td>
+      <td>${incidentTag(c.incident_type)}</td>
+      <td class="reason-cell">${esc(c.reason||'')}</td>
       <td class="impact-cell">
-        <div class="impact-dots" aria-label="Impact score ${c.impact} out of 5">
+        <div class="impact-dots">
           ${[1,2,3,4,5].map(n => `<div class="impact-dot${n <= c.impact ? ' filled' : ''}"></div>`).join('')}
           <span class="impact-score">${c.impact}/5</span>
         </div>
       </td>
       <td>
-        <a href="${c.source}" target="_blank" rel="noopener noreferrer"
-           class="source-link" title="${c.source}">${esc(c.sourceLabel)}</a>
+        <a href="${esc(c.source||'#')}" target="_blank" rel="noopener noreferrer"
+           class="source-link" title="${esc(c.source||'')}">${esc(c.source_label||'Source')}</a>
       </td>
     </tr>
   `).join('');
 }
 
+function updateStats() {
+  document.getElementById('statTotal').textContent = allData.length;
+  document.getElementById('statTrump').textContent = allData.filter(c => c.category === 'trump').length;
+  document.getElementById('statIsrael').textContent = allData.filter(c => c.category === 'israel').length;
+  document.getElementById('statBoth').textContent = allData.filter(c => c.category === 'both').length;
+  const avg = allData.length
+    ? (allData.reduce((s, c) => s + (c.impact||0), 0) / allData.length).toFixed(1)
+    : '—';
+  document.getElementById('statAvg').textContent = avg;
+}
+
 function badge(cat) {
-  const map = {
-    trump: ['badge-trump', '🇺🇸 Pro-Trump'],
-    israel: ['badge-israel', '✡ Pro-Israel'],
-    both:   ['badge-both', '⬡ Both']
-  };
-  const [cls, label] = map[cat] || ['', cat];
+  const map = { trump: ['badge-trump','🇺🇸 Pro-Trump'], israel: ['badge-israel','✡ Pro-Israel'], both: ['badge-both','⬡ Both'] };
+  const [cls, label] = map[cat] || ['','Unknown'];
   return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
 }
 
-function updateStats() {
-  const all = companies;
-  document.getElementById('statTotal').textContent = all.length;
-  document.getElementById('statTrump').textContent = all.filter(c => c.category === 'trump').length;
-  document.getElementById('statIsrael').textContent = all.filter(c => c.category === 'israel').length;
-  document.getElementById('statBoth').textContent = all.filter(c => c.category === 'both').length;
-  const avg = (all.reduce((s, c) => s + c.impact, 0) / all.length).toFixed(1);
-  document.getElementById('statAvg').textContent = avg;
+function incidentTag(type) {
+  const map = {
+    donation: ['tag-donation','Donation'],
+    contract: ['tag-contract','Gov\'t Contract'],
+    investment: ['tag-investment','Investment'],
+    lobbying: ['tag-lobbying','Lobbying'],
+    bds: ['tag-bds','BDS Target'],
+    other: ['tag-other','Other']
+  };
+  const [cls, label] = map[type] || ['tag-other', type||'Other'];
+  return `<span class="incident-tag ${cls}">${label}</span>`;
 }
 
 function formatDate(d) {
@@ -1050,67 +679,32 @@ function formatDate(d) {
 }
 
 function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ─── EXPORT CSV ───────────────────────────────────────────────────────────────
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
 function exportCSV() {
-  const headers = ['Company','Sector','Date','Category','Reason','Impact Score','Source Label','Source URL'];
-  const rows = filtered.map(c => [
-    c.company, c.sector, c.date, c.category, c.reason, c.impact, c.sourceLabel, c.source
-  ].map(v => `"${String(v).replace(/"/g,'""')}"`));
-
-  const csv = [headers.map(h => `"${h}"`), ...rows].map(r => r.join(',')).join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `corporate-accountability-tracker-${new Date().toISOString().slice(0,10)}.csv`;
+  const headers = ['Company','Sector','Date','Category','Incident Type','Reason','Impact','Source Label','Source URL'];
+  const rows = filtered.map(c =>
+    [c.company,c.sector,c.date,c.category,c.incident_type,c.reason,c.impact,c.source_label,c.source]
+    .map(v => `"${String(v||'').replace(/"/g,'""')}"`)
+  );
+  const csv = [headers.map(h=>`"${h}"`), ...rows].map(r=>r.join(',')).join('\r\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv], {type:'text/csv'})),
+    download: `accountability-tracker-${new Date().toISOString().slice(0,10)}.csv`
+  });
   a.click();
-  URL.revokeObjectURL(url);
 }
 
-// ─── REFRESH LOGIC ────────────────────────────────────────────────────────────
-function setLastUpdated() {
-  const now = new Date();
-  const fmt = now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
-    + ' · ' + now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', timeZoneName:'short' });
-  document.getElementById('lastUpdated').textContent = 'Updated: ' + fmt;
-}
-
-function scheduleNextRefresh() {
-  const now = new Date();
-  const next = new Date(now);
-  next.setHours(7, 0, 0, 0);
-  // Central time offset: approximate UTC-5 or UTC-6
-  // For production, use a proper timezone library
-  if (now >= next) next.setDate(next.getDate() + 1);
-  const ms = next - now;
-  setTimeout(() => {
-    setLastUpdated();
-    scheduleNextRefresh();
-  }, ms);
-}
-
-// ─── THEME ────────────────────────────────────────────────────────────────────
+// ─── THEME & MODAL ────────────────────────────────────────────────────────────
 function toggleTheme() {
-  const html = document.documentElement;
-  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme =
+    document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
 }
-
-// ─── MODAL ────────────────────────────────────────────────────────────────────
-function openAbout() {
-  document.getElementById('aboutModal').classList.add('open');
-  document.querySelector('.modal-close').focus();
-}
-function closeAbout() {
-  document.getElementById('aboutModal').classList.remove('open');
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeAbout();
-});
+function openAbout() { document.getElementById('aboutModal').classList.add('open'); }
+function closeAbout() { document.getElementById('aboutModal').classList.remove('open'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAbout(); });
 document.getElementById('aboutModal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeAbout();
 });

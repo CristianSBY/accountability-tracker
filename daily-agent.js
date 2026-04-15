@@ -1,100 +1,193 @@
 // daily-agent.js
-// Corporate Accountability Tracker — Daily Agent
-// - On first run after seed: performs 16-month historical backfill
-// - On subsequent runs: searches last 48 hours for new incidents
-// - Searches 30 issue areas across all runs
+// Corporate Accountability Tracker
+// Clean rewrite — no hardcoded seed data
+// First run: full 16-month backfill via live web search
+// Subsequent runs: last 48 hours only
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// ─── SEARCH TOPICS ────────────────────────────────────────────────────────────
+// ─── 55 SEARCH TOPICS ────────────────────────────────────────────────────────
 const SEARCH_TOPICS = [
-  { label: "Trump Donations & Inauguration Fund", query: "corporate donation Trump inauguration PAC 2025 2026", issue_tags: ["trump-financial"] },
-  { label: "Gaza — Weapons Suppliers & Contracts", query: "company weapons contract Israel military Gaza", issue_tags: ["gaza", "weapons"] },
-  { label: "Gaza — Technology & AI Enablement", query: "tech company AI surveillance contract Israel IDF", issue_tags: ["gaza", "surveillance-tech"] },
-  { label: "ICE — Technology & Data Contractors", query: "company ICE contract surveillance facial recognition immigration enforcement", issue_tags: ["ice", "surveillance-tech"] },
-  { label: "ICE — Private Detention Contractors", query: "private prison detention center ICE contract deportation profit", issue_tags: ["ice", "detention"] },
-  { label: "Congo & Sudan — Conflict Minerals", query: "company mining contract Congo Sudan conflict minerals arms", issue_tags: ["congo", "sudan", "conflict-minerals"] },
-  { label: "Venezuela — Sanctions Profiteers", query: "company lobbying Venezuela sanctions oil profit exemption", issue_tags: ["venezuela", "sanctions"] },
-  { label: "Iran — War Posturing Profiteers", query: "defense company Iran military escalation contract weapons profit", issue_tags: ["iran", "weapons"] },
-  { label: "Private Equity — Food System Extraction", query: "private equity food company acquisition grocery farm monopoly price", issue_tags: ["food-system", "private-equity"] },
-  { label: "Private Equity — Healthcare Extraction", query: "private equity hospital acquisition healthcare profit Medicaid nursing home", issue_tags: ["healthcare", "private-equity"] },
-  { label: "Federal Contracts — Trump Administration Awards", query: "company federal government contract awarded Trump administration billions", issue_tags: ["trump-financial", "federal-contracts"] },
-  { label: "Tariff Profiteers", query: "company profiting Trump tariffs price increase consumers windfall", issue_tags: ["tariffs", "trump-financial"] },
-  { label: "Union Busting — NLRB Rollback", query: "company union busting NLRB labor violation firing workers Trump", issue_tags: ["labor", "union-busting"] },
-  { label: "Environment — EPA Rollback Beneficiaries", query: "company EPA rollback pollution drilling permit federal land benefit", issue_tags: ["environment", "trump-financial"] },
-  { label: "Surveillance — Border & Immigration Tech", query: "company autonomous surveillance border patrol CBP immigration AI", issue_tags: ["surveillance-tech", "ice"] },
-  { label: "Data Brokers — Selling to Enforcement", query: "data broker selling location data ICE immigration enforcement police", issue_tags: ["surveillance-tech", "ice"] },
-  { label: "Market Manipulation — Policy Trading", query: "company executive stock options trading tariff policy announcement Trump", issue_tags: ["trump-financial", "market-manipulation"] },
-  { label: "Financial Deregulation — CFPB & Banking", query: "bank financial company benefiting CFPB abolished consumer protection rollback", issue_tags: ["trump-financial", "financial-deregulation"] },
-  { label: "Pharma — Price Gouging Post-Deregulation", query: "pharmaceutical company price increase Medicaid Medicare cuts deregulation", issue_tags: ["healthcare", "price-gouging"] },
-  { label: "Media Capture & Editorial Suppression", query: "media company editorial change soft coverage Trump lawsuit settlement advertiser", issue_tags: ["media", "disinformation"] },
-  { label: "Russia — Sanctions Softening Beneficiaries", query: "company Russia business resumed sanctions lifted softened Trump", issue_tags: ["russia", "sanctions"] },
-  { label: "Yemen & Somalia — Arms Suppliers", query: "defense company weapons contract Yemen Somalia conflict civilian", issue_tags: ["weapons", "conflict"] },
-  { label: "Anti-DEI Corporate Capitulation", query: "company ending DEI diversity equity inclusion programs rollback Trump pressure", issue_tags: ["civil-rights", "trump-financial"] },
-  { label: "Anti-Trans Legislation Funders", query: "company funding anti-transgender legislation bills donors", issue_tags: ["civil-rights", "lgbtq"] },
-  { label: "Farmland & Housing Monopolization", query: "private equity hedge fund buying farmland single family homes rental monopoly", issue_tags: ["food-system", "private-equity"] },
-  { label: "Fossil Fuels — Federal Land Drilling", query: "oil gas company drilling permit federal land national park Trump emergency", issue_tags: ["environment", "fossil-fuels"] },
-  { label: "BDS — Israel Occupation Profiteers", query: "company West Bank settlement profit listed BDS boycott target", issue_tags: ["gaza", "bds"] },
-  { label: "Social Media — Disinformation Amplification", query: "social media company moderation rollback hate speech profit disinformation spread", issue_tags: ["media", "disinformation"] },
-  { label: "Think Tanks & PR — Paid Narratives", query: "PR firm think tank paid Trump administration narrative propaganda dark money", issue_tags: ["disinformation", "lobbying"] },
-  { label: "ICE — Immigrant Labor Exploitation", query: "company using undocumented immigrant labor while supporting ICE deportation raids", issue_tags: ["ice", "labor"] }
+  // FINANCIAL SUPPORT
+  { label: "Trump Donations — Inauguration & PACs", query: "corporation donated Trump inauguration fund PAC super PAC", issue_tags: ["trump-financial"] },
+  { label: "Dark Money — Republican Campaigns", query: "corporation dark money republican senate house campaign ALEC", issue_tags: ["trump-financial", "lobbying"] },
+  { label: "Federal Contracts — Post-Inauguration Awards", query: "company awarded federal contract Trump administration no-bid sole source inflated", issue_tags: ["trump-financial", "federal-contracts"] },
+
+  // LEGISLATION & POLICY
+  { label: "Tax Cuts — Billionaire & Corporate Beneficiaries", query: "corporation benefiting Republican tax cut bill carried interest loophole capital gains", issue_tags: ["tax-cuts", "wealth-extraction", "trump-financial"] },
+  { label: "Deregulation — Financial Industry Lobbying", query: "bank financial company lobbying Dodd-Frank CFPB Basel rollback benefit", issue_tags: ["financial-deregulation", "lobbying"] },
+  { label: "Deregulation — Energy & Environment", query: "oil gas coal company EPA Clean Air Act rollback drilling permit benefit", issue_tags: ["environment", "fossil-fuels", "lobbying"] },
+  { label: "Deregulation — Food & Drug Safety", query: "food pharma company FDA USDA safety regulation rollback benefit DOGE", issue_tags: ["healthcare", "food-system", "lobbying"] },
+  { label: "Tariff Exemptions — Insider Lobbying Deals", query: "company received Trump tariff exemption waiver exclusion lobbied", issue_tags: ["tariffs", "trump-financial", "lobbying"] },
+  { label: "Tariff Profiteers — Price Gouging Consumers", query: "company raised prices consumers Trump tariffs while profits increased", issue_tags: ["tariffs", "price-gouging"] },
+  { label: "Social Security & Medicare Cuts — Corporate Beneficiaries", query: "company benefiting Social Security Medicare Medicaid cuts privatization voucher", issue_tags: ["healthcare", "wealth-extraction", "lobbying"] },
+  { label: "Education Privatization — Voucher Profiteers", query: "company profiting school voucher charter education privatization DeVos", issue_tags: ["education", "private-equity", "lobbying"] },
+  { label: "Anti-Labor Legislation — NLRB & Union Busting", query: "company benefiting NLRB gutted union busting right to work fired organizers", issue_tags: ["labor", "union-busting", "lobbying"] },
+  { label: "Voting Suppression — Corporate Funders", query: "corporation funding voter suppression gerrymandering restrictive voting ID laws", issue_tags: ["voting-rights", "civil-rights", "lobbying"] },
+  { label: "Anti-DEI Legislation — Corporate Funders & Rollers-Back", query: "company funding anti-DEI legislation ending diversity programs rollback", issue_tags: ["civil-rights", "trump-financial"] },
+  { label: "Anti-Trans Legislation — Corporate Funders", query: "company donating anti-transgender legislation healthcare sports bathroom bills", issue_tags: ["civil-rights", "lgbtq", "lobbying"] },
+  { label: "Abortion Ban — Corporate Funders", query: "company funding abortion ban legislation restrictive reproductive rights bills", issue_tags: ["civil-rights", "lobbying"] },
+  { label: "Gun Lobby — NRA Corporate Funders", query: "company funding NRA gun lobby against gun control background check legislation", issue_tags: ["lobbying", "trump-financial"] },
+  { label: "Big Tech — Internet & AI Deregulation Lobbying", query: "tech company lobbying internet regulation AI oversight rollback net neutrality Section 230", issue_tags: ["lobbying", "surveillance-tech", "trump-financial"] },
+  { label: "ALEC — Model Legislation Corporate Funders", query: "company funding ALEC American Legislative Exchange Council model bills", issue_tags: ["lobbying", "legislation-support", "trump-financial"] },
+
+  // WEALTH EXTRACTION & THE 1%
+  { label: "Private Equity — Healthcare Extraction", query: "private equity acquired hospital nursing home healthcare profit extraction staff cuts", issue_tags: ["healthcare", "private-equity", "wealth-extraction"] },
+  { label: "Private Equity — Housing Monopolization", query: "private equity hedge fund buying single family homes apartments rents increased evictions", issue_tags: ["private-equity", "wealth-extraction"] },
+  { label: "Private Equity — Food System Monopolization", query: "private equity acquiring food company grocery chain farm consolidation price increase", issue_tags: ["food-system", "private-equity", "wealth-extraction"] },
+  { label: "Private Equity — Media Consolidation & Closure", query: "private equity acquiring local news media outlet consolidation layoffs closure", issue_tags: ["media", "private-equity", "wealth-extraction"] },
+  { label: "CEO Pay vs Worker Cuts", query: "company CEO pay increased record high while laying off workers cutting wages benefits", issue_tags: ["labor", "wealth-extraction"] },
+  { label: "Stock Buybacks — Shareholders Over Workers", query: "company stock buyback billions shareholders while cutting jobs wages benefits", issue_tags: ["wealth-extraction", "labor"] },
+  { label: "Offshore Tax Havens — Corporate Avoidance", query: "company offshore tax haven Cayman Ireland avoiding US taxes Republican bill", issue_tags: ["tax-cuts", "wealth-extraction"] },
+  { label: "Market Manipulation — Policy Trading", query: "executive insider trading stock options tariff policy announcement Trump", issue_tags: ["market-manipulation", "trump-financial"] },
+  { label: "Pharma — Price Gouging Post-Deregulation", query: "pharmaceutical company raised drug prices after Medicaid cuts deregulation", issue_tags: ["healthcare", "price-gouging", "wealth-extraction"] },
+  { label: "Insurance — Denial & Profit Extraction", query: "health insurance company denying claims record profits Medicaid privatization", issue_tags: ["healthcare", "wealth-extraction"] },
+  { label: "Junk Fees — Corporate Price Extraction", query: "company charging junk fees hidden fees CFPB rule rollback benefit", issue_tags: ["financial-deregulation", "wealth-extraction", "price-gouging"] },
+
+  // MILITARY, CONFLICT & FOREIGN POLICY
+  { label: "Gaza — Weapons & Munitions Suppliers", query: "company supplying weapons munitions bombs Israel military Gaza genocide", issue_tags: ["gaza", "weapons"] },
+  { label: "Gaza — Technology & AI Targeting Systems", query: "tech company AI surveillance contract Israel IDF targeting Gaza", issue_tags: ["gaza", "surveillance-tech"] },
+  { label: "Gaza — Logistics & Supply Chain", query: "company logistics shipping supply chain Israel military operations Gaza port", issue_tags: ["gaza", "weapons"] },
+  { label: "BDS — Israel Occupation Profiteers", query: "company West Bank settlement profit BDS boycott target occupation normalize", issue_tags: ["gaza", "bds"] },
+  { label: "Iran — War Escalation Profiteers", query: "defense company Iran military buildup weapons contract profit escalation 2025 2026", issue_tags: ["iran", "weapons"] },
+  { label: "Congo & Sudan — Conflict Minerals", query: "company sourcing conflict minerals Congo Sudan DRC coltan lithium cobalt", issue_tags: ["congo", "sudan", "conflict-minerals"] },
+  { label: "Yemen & Somalia — Arms Suppliers", query: "defense company weapons contract Yemen Somalia conflict civilian casualties", issue_tags: ["weapons", "conflict"] },
+  { label: "Russia — Sanctions Softening Beneficiaries", query: "company resuming Russia business after Trump softened eased sanctions", issue_tags: ["russia", "sanctions"] },
+  { label: "Venezuela — Sanctions Profiteers", query: "company lobbying Venezuela sanctions exemption oil gas profit", issue_tags: ["venezuela", "sanctions"] },
+
+  // ICE, SURVEILLANCE & CIVIL LIBERTIES
+  { label: "ICE — Private Detention Contractors", query: "private prison company ICE detention contract deportation profit expansion", issue_tags: ["ice", "detention"] },
+  { label: "ICE — Technology & Data Contractors", query: "tech company ICE contract data analytics AI surveillance immigration enforcement", issue_tags: ["ice", "surveillance-tech"] },
+  { label: "ICE — Immigrant Labor Hypocrisy", query: "company employing undocumented workers while donating supporting ICE deportation", issue_tags: ["ice", "labor"] },
+  { label: "Surveillance — Selling Data to Enforcement", query: "company selling facial recognition location data police ICE border patrol", issue_tags: ["surveillance-tech", "ice", "civil-rights"] },
+  { label: "Border — Autonomous Surveillance Tech", query: "company autonomous AI surveillance tower border wall CBP contract", issue_tags: ["surveillance-tech", "ice"] },
+  { label: "Prison Tech — Monitoring & Control", query: "company prison jail monitoring technology contract profit expansion", issue_tags: ["detention", "surveillance-tech"] },
+
+  // ENVIRONMENT & CLIMATE
+  { label: "Fossil Fuels — Federal Land Drilling", query: "oil gas company drilling permit opened federal land national park monument", issue_tags: ["environment", "fossil-fuels"] },
+  { label: "Climate Denial — Corporate Funders", query: "company funding climate denial think tank Heartland Heritage lobbying", issue_tags: ["environment", "disinformation", "lobbying"] },
+  { label: "Pollution — EPA Enforcement Rollback", query: "company increasing pollution violations after EPA enforcement rollback DOGE", issue_tags: ["environment", "trump-financial"] },
+  { label: "Plastics & Chemicals — Regulation Rollback", query: "plastics chemical company PFAS pesticide regulation rollback benefit", issue_tags: ["environment", "lobbying"] },
+
+  // MEDIA, DISINFORMATION
+  { label: "Media Capture — Editorial Suppression", query: "media company soften coverage Trump lawsuit settlement editorial pressure fired journalist", issue_tags: ["media", "disinformation"] },
+  { label: "Social Media — Disinformation Amplification", query: "social media platform moderation rollback hate speech disinformation spread profit", issue_tags: ["media", "disinformation"] },
+  { label: "Think Tanks — Dark Money Narratives", query: "think tank PR firm dark money Republican narrative propaganda paid", issue_tags: ["disinformation", "lobbying"] },
+
+  // LABOR & WORKER SUPPRESSION
+  { label: "Wage Theft & Safety Violations", query: "company wage theft labor violation workers OSHA cuts enforcement rollback", issue_tags: ["labor", "wealth-extraction"] },
+  { label: "Gig Economy — Worker Misclassification", query: "company gig worker misclassification lobbying against employee status AB5", issue_tags: ["labor", "lobbying"] },
+  { label: "Child Labor — Violations & Lobbying", query: "company child labor violation lobbying weakening child labor protection laws", issue_tags: ["labor", "civil-rights"] }
 ];
 
 const VALID_CATEGORIES = ['trump', 'israel', 'both', 'global'];
-const VALID_INCIDENT_TYPES = ['donation', 'contract', 'investment', 'lobbying', 'bds', 'surveillance', 'detention', 'labor-violation', 'price-gouging', 'environmental', 'market-manipulation', 'media', 'other'];
-const VALID_ISSUE_TAGS = ['trump-financial', 'gaza', 'weapons', 'ice', 'detention', 'surveillance-tech', 'congo', 'sudan', 'conflict-minerals', 'venezuela', 'iran', 'food-system', 'private-equity', 'healthcare', 'federal-contracts', 'tariffs', 'labor', 'union-busting', 'environment', 'fossil-fuels', 'market-manipulation', 'financial-deregulation', 'sanctions', 'russia', 'conflict', 'civil-rights', 'lgbtq', 'media', 'disinformation', 'lobbying', 'bds', 'price-gouging'];
+const VALID_INCIDENT_TYPES = [
+  'donation', 'contract', 'investment', 'lobbying', 'bds',
+  'surveillance', 'detention', 'labor-violation', 'price-gouging',
+  'environmental', 'market-manipulation', 'media', 'legislation-support',
+  'tax-avoidance', 'wealth-extraction', 'other'
+];
+const VALID_ISSUE_TAGS = [
+  'trump-financial', 'gaza', 'weapons', 'ice', 'detention',
+  'surveillance-tech', 'congo', 'sudan', 'conflict-minerals',
+  'venezuela', 'iran', 'food-system', 'private-equity', 'healthcare',
+  'federal-contracts', 'tariffs', 'labor', 'union-busting', 'environment',
+  'fossil-fuels', 'market-manipulation', 'financial-deregulation',
+  'sanctions', 'russia', 'conflict', 'civil-rights', 'lgbtq', 'media',
+  'disinformation', 'lobbying', 'bds', 'price-gouging', 'wealth-extraction',
+  'tax-cuts', 'voting-rights', 'education', 'legislation-support'
+];
 
-// ─── SEARCH A TOPIC FOR A DATE RANGE ─────────────────────────────────────────
+// ─── SEARCH ONE TOPIC FOR A DATE RANGE ───────────────────────────────────────
 async function searchTopic(topic, fromDate, toDate) {
-  console.log(`  🔍 [${fromDate} → ${toDate}] ${topic.label}`);
+  console.log(`  🔍 [${fromDate}→${toDate}] ${topic.label}`);
 
-  const prompt = `You are a corporate accountability researcher. Search for real, documented incidents between ${fromDate} and ${toDate} related to: "${topic.label}"
+  const prompt = `You are a corporate accountability researcher. Today is April 13, 2026.
 
-Search focus: ${topic.query}
+Search for REAL, DOCUMENTED incidents between ${fromDate} and ${toDate} for this topic:
+"${topic.label}" — search query: ${topic.query}
 
-Find U.S. or multinational companies (with U.S. operations) involved in any of:
-- Financial support: donations, PAC contributions, inauguration funds, bundling
-- Government contracts: defense, tech, logistics, detention, surveillance
-- Investments benefiting from harmful policies or conflicts
-- Lobbying for deregulation, anti-labor, anti-environment, or pro-war legislation
-- Direct enablement of: genocide, mass detention, civilian surveillance, price gouging, union busting, environmental crimes, disinformation campaigns
-- Market manipulation around policy announcements
-- Selling data or technology to enforcement agencies targeting civilians
-- Privatizing and extracting profit from essential services (healthcare, food, housing)
+Find U.S. or multinational companies (with U.S. operations) involved in ANY of:
 
-For EACH company found, return a JSON object with ALL these fields:
+FINANCIAL SUPPORT:
+- Donations to Trump, Republican campaigns, PACs, inauguration funds, dark money groups
+- Receiving inflated or no-bid federal contracts after political donations
+- Benefiting from tariff exemptions obtained through lobbying
+
+LEGISLATION & POLICY:
+- Lobbying FOR: tax cuts for the wealthy, deregulation, voter suppression, anti-labor bills, anti-abortion bills, anti-trans bills, gun lobby, education privatization, cutting Medicare/Medicaid/Social Security
+- Lobbying AGAINST: minimum wage, worker protections, drug price controls, antitrust enforcement, financial regulation, climate legislation
+- Funding ALEC or similar model-legislation organizations
+- Benefiting from specific legislation that passed due to their lobbying (name the bill)
+- Supporting voter suppression, gerrymandering, or election interference
+
+WEALTH EXTRACTION:
+- Private equity acquiring hospitals, nursing homes, housing, food companies, media — cutting services while raising prices
+- CEO pay increases while laying off workers or cutting wages
+- Stock buybacks enriching shareholders while workers suffer
+- Using offshore tax havens to avoid U.S. taxes
+- Raising prices on essential goods after deregulation removed oversight
+- Charging junk fees after CFPB enforcement was gutted
+
+MILITARY & CONFLICT:
+- Supplying weapons, technology, or logistics to Israel's military in Gaza
+- Arms deals with Yemen, Sudan, Congo, Somalia conflict zones
+- Profiting from Iran war escalation
+- Resuming Russia business after sanctions softened
+
+ICE & SURVEILLANCE:
+- ICE detention contracts, data analytics, enforcement technology
+- Selling facial recognition or location data to law enforcement
+- Border surveillance autonomous systems
+
+ENVIRONMENT:
+- Receiving drilling permits on newly opened federal land
+- Increasing pollution after EPA enforcement gutted
+- Funding climate denial think tanks or lobbying against climate legislation
+
+MEDIA & DISINFORMATION:
+- Softening news coverage under political pressure
+- Removing content moderation enabling disinformation
+- Funding propaganda through think tanks
+
+LABOR:
+- Illegal union busting, firing organizers
+- Wage theft, safety violations after OSHA enforcement cut
+- Lobbying against worker protections
+- Child labor violations
+
+Return a JSON array. Each entry MUST have:
 {
-  "company": "Full Company Name",
-  "sector": "Industry Sector",
+  "company": "Full legal company name",
+  "sector": "Industry sector",
   "date": "YYYY-MM-DD",
   "category": "trump" | "israel" | "both" | "global",
-  "incident_type": "donation" | "contract" | "investment" | "lobbying" | "bds" | "surveillance" | "detention" | "labor-violation" | "price-gouging" | "environmental" | "market-manipulation" | "media" | "other",
+  "incident_type": "donation" | "contract" | "investment" | "lobbying" | "bds" | "surveillance" | "detention" | "labor-violation" | "price-gouging" | "environmental" | "market-manipulation" | "media" | "legislation-support" | "tax-avoidance" | "wealth-extraction" | "other",
   "issue_tags": ["tag1", "tag2"],
-  "reason": "2-4 factual sentences. Be specific: name dollar amounts, contract values, specific actions, dates. No editorializing.",
+  "reason": "3-5 factual sentences. BE SPECIFIC: name dollar amounts, bill names (e.g. H.R. 1234), contract values, specific actions taken, votes, dates. No opinions.",
   "impact": 1-5,
   "source": "https://full-url-to-primary-source.com",
   "source_label": "Source Name"
 }
 
-Impact scoring:
-5 = Direct mass harm (weapons to active conflict, detention infrastructure, $2M+ donation, major surveillance against civilians)
-4 = Significant ($1-2M donation, major defense/ICE contract, top BDS target, PE destroying essential services)
-3 = Moderate (<$1M donation, lobbying win, investment in harmful sector, settlement complicity)
-2 = Indirect (PAC, minor lobbying, peripheral ties, DEI rollback)
-1 = Peripheral/emerging
+Valid issue_tags ONLY: ${JSON.stringify(VALID_ISSUE_TAGS)}
 
-Valid issue_tags: ${JSON.stringify(VALID_ISSUE_TAGS)}
-
-category "global" = ICE, Congo, Sudan, PE extraction, environment, labor — not Trump or Israel specific
-category "trump" = supports Trump administration agenda specifically
-category "israel" = supports Israeli military/occupation specifically  
+category "trump" = supports Trump/Republican agenda specifically
+category "israel" = supports Israeli military/occupation
 category "both" = both Trump and Israel
+category "global" = ICE, private equity, labor, environment, Congo/Sudan — broader harm
 
-CRITICAL: Return ONLY a raw JSON array. No markdown. No backticks. No explanation. No preamble.
-If nothing credible found for this date range, return exactly: []
-Only include entries backed by verifiable sources (FEC, OpenSecrets, AFSC, USCPR, Reuters, AP, Bloomberg, ProPublica, The Intercept, UN reports, Democracy Now).`;
+Impact:
+5 = Direct mass harm: weapons to active conflict, major detention infrastructure, $2M+ donation, legislation harming millions
+4 = Significant: $1-2M donation, major defense/ICE contract, top BDS target, key legislation passed due to lobbying
+3 = Moderate: <$1M donation, lobbying win, investment in harmful sector, price gouging
+2 = Indirect: PAC, minor lobbying, DEI rollback, peripheral ties
+1 = Peripheral or emerging
+
+RETURN ONLY A RAW JSON ARRAY. No markdown. No backticks. No preamble. No explanation after.
+If nothing credible and verifiable found for this date range and topic, return exactly: []`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -113,13 +206,11 @@ Only include entries backed by verifiable sources (FEC, OpenSecrets, AFSC, USCPR
     });
 
     if (!response.ok) {
-      console.log(`    ⚠️  API ${response.status}: ${await response.text()}`);
+      console.log(`    ⚠️  API ${response.status}`);
       return [];
     }
 
     const data = await response.json();
-
-    // Extract all text blocks
     const text = data.content
       .filter(b => b.type === 'text')
       .map(b => b.text)
@@ -127,47 +218,70 @@ Only include entries backed by verifiable sources (FEC, OpenSecrets, AFSC, USCPR
 
     if (!text || text.trim() === '[]') return [];
 
-    // Strip any accidental markdown
+    // Strip any accidental markdown fences
     const clean = text
       .replace(/```json\s*/gi, '')
       .replace(/```\s*/gi, '')
       .trim();
 
-    // Find JSON array in response
+    // Find the JSON array
     const start = clean.indexOf('[');
     const end = clean.lastIndexOf(']');
-    if (start === -1 || end === -1) return [];
+    if (start === -1 || end === -1) {
+      console.log(`    ⚠️  No JSON array found in response`);
+      return [];
+    }
 
-    const jsonStr = clean.slice(start, end + 1);
-    const incidents = JSON.parse(jsonStr);
-    const count = Array.isArray(incidents) ? incidents.length : 0;
+    const parsed = JSON.parse(clean.slice(start, end + 1));
+    const count = Array.isArray(parsed) ? parsed.length : 0;
     if (count > 0) console.log(`    ✅ ${count} incidents found`);
-    return Array.isArray(incidents) ? incidents : [];
+    return Array.isArray(parsed) ? parsed : [];
+
   } catch (err) {
-    console.log(`    ⚠️  Parse error: ${err.message}`);
+    console.log(`    ⚠️  Error: ${err.message}`);
     return [];
   }
 }
 
-// ─── VALIDATE & CLEAN ─────────────────────────────────────────────────────────
+// ─── VALIDATE ─────────────────────────────────────────────────────────────────
 function validateIncident(inc) {
-  if (!inc.company || typeof inc.company !== 'string') return null;
-  if (!inc.date || typeof inc.date !== 'string') return null;
-  if (!inc.reason || typeof inc.reason !== 'string') return null;
-  if (!inc.category || !VALID_CATEGORIES.includes(inc.category)) inc.category = 'global';
-  if (!inc.incident_type || !VALID_INCIDENT_TYPES.includes(inc.incident_type)) inc.incident_type = 'other';
+  if (!inc.company || typeof inc.company !== 'string' || inc.company.trim().length < 2) return null;
+  if (!inc.date || !/^\d{4}-\d{2}-\d{2}$/.test(inc.date)) return null;
+  if (!inc.reason || typeof inc.reason !== 'string' || inc.reason.trim().length < 20) return null;
+  if (!VALID_CATEGORIES.includes(inc.category)) inc.category = 'global';
+  if (!VALID_INCIDENT_TYPES.includes(inc.incident_type)) inc.incident_type = 'other';
   if (!Array.isArray(inc.issue_tags)) inc.issue_tags = [];
   inc.issue_tags = inc.issue_tags.filter(t => VALID_ISSUE_TAGS.includes(t));
   inc.impact = Math.min(5, Math.max(1, parseInt(inc.impact) || 3));
-  if (!inc.sector) inc.sector = 'Unknown';
+  if (!inc.sector || inc.sector.trim().length < 2) inc.sector = 'Unknown';
   if (!inc.source) inc.source = '';
   if (!inc.source_label) inc.source_label = 'News Report';
-  // Validate date format
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(inc.date)) return null;
+  inc.company = inc.company.trim();
+  inc.reason = inc.reason.trim();
   return inc;
 }
 
 // ─── SUPABASE HELPERS ─────────────────────────────────────────────────────────
+async function getRowCount() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/companies?select=id`,
+      {
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'Prefer': 'count=exact',
+          'Range': '0-0'
+        }
+      }
+    );
+    const range = res.headers.get('content-range') || '0/0';
+    return parseInt(range.split('/')[1]) || 0;
+  } catch {
+    return 0;
+  }
+}
+
 async function getExistingKeys() {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/companies?select=company,date,incident_type&limit=5000`,
@@ -175,16 +289,9 @@ async function getExistingKeys() {
   );
   if (!res.ok) throw new Error(`Supabase fetch error: ${res.status}`);
   const rows = await res.json();
-  return new Set(rows.map(r => `${(r.company||'').toLowerCase().trim()}|${r.date}|${r.incident_type}`));
-}
-
-async function getRowCount() {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/companies?select=id`,
-    { headers: { 'apikey': SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`, 'Prefer': 'count=exact', 'Range': '0-0' } }
+  return new Set(
+    rows.map(r => `${(r.company || '').toLowerCase().trim()}|${r.date}|${r.incident_type}`)
   );
-  const range = res.headers.get('content-range') || '0/0';
-  return parseInt(range.split('/')[1]) || 0;
 }
 
 async function writeToSupabase(incidents) {
@@ -203,8 +310,7 @@ async function writeToSupabase(incidents) {
       body: JSON.stringify(batch)
     });
     if (!res.ok) {
-      const err = await res.text();
-      console.error(`  ❌ Write error (batch ${i}): ${res.status} — ${err}`);
+      console.error(`  ❌ Write error: ${res.status} — ${await res.text()}`);
     } else {
       written += batch.length;
     }
@@ -212,9 +318,9 @@ async function writeToSupabase(incidents) {
   return written;
 }
 
-// ─── SEARCH ONE PERIOD ACROSS ALL TOPICS ─────────────────────────────────────
-async function searchPeriod(fromDate, toDate, existingKeys) {
-  let periodNew = [];
+// ─── SEARCH ONE FULL PERIOD ───────────────────────────────────────────────────
+async function searchPeriod(fromDate, toDate, existingKeys, skipDedup = false) {
+  let newIncidents = [];
 
   for (const topic of SEARCH_TOPICS) {
     const found = await searchTopic(topic, fromDate, toDate);
@@ -222,28 +328,31 @@ async function searchPeriod(fromDate, toDate, existingKeys) {
     for (const inc of found) {
       const cleaned = validateIncident(inc);
       if (!cleaned) continue;
+
       const key = `${cleaned.company.toLowerCase().trim()}|${cleaned.date}|${cleaned.incident_type}`;
-      if (!existingKeys.has(key)) {
-        periodNew.push(cleaned);
-        existingKeys.add(key);
-      }
+
+      // On backfill first pass, skip dedup so we don't miss things
+      if (!skipDedup && existingKeys.has(key)) continue;
+
+      newIncidents.push(cleaned);
+      existingKeys.add(key);
     }
 
-    // Delay between calls to avoid rate limits
+    // Delay between API calls
     await new Promise(r => setTimeout(r, 1500));
   }
 
-  if (periodNew.length > 0) {
-    const written = await writeToSupabase(periodNew);
-    console.log(`  📝 Wrote ${written} new incidents for ${fromDate} → ${toDate}`);
+  if (newIncidents.length > 0) {
+    const written = await writeToSupabase(newIncidents);
+    console.log(`  📝 Wrote ${written} incidents for ${fromDate} → ${toDate}`);
   } else {
-    console.log(`  — No new incidents for ${fromDate} → ${toDate}`);
+    console.log(`  — No new incidents found for ${fromDate} → ${toDate}`);
   }
 
-  return periodNew.length;
+  return newIncidents.length;
 }
 
-// ─── GENERATE DATE RANGES (monthly chunks) ───────────────────────────────────
+// ─── GENERATE MONTHLY DATE RANGES ────────────────────────────────────────────
 function getMonthlyRanges(monthsBack) {
   const ranges = [];
   const now = new Date();
@@ -251,124 +360,66 @@ function getMonthlyRanges(monthsBack) {
   for (let i = monthsBack; i >= 0; i--) {
     const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
+    const toDate = end > now ? now : end;
 
-    const fromDate = start.toISOString().slice(0, 10);
-    const toDate = (end > now ? now : end).toISOString().slice(0, 10);
-    ranges.push({ fromDate, toDate });
+    ranges.push({
+      fromDate: start.toISOString().slice(0, 10),
+      toDate: toDate.toISOString().slice(0, 10)
+    });
   }
 
   return ranges;
 }
 
-// ─── SEED INITIAL DATA ────────────────────────────────────────────────────────
-async function seedInitialData() {
-  console.log('🌱 Seeding core dataset...');
-
-  const coreData = [
-    { company: "Amazon", sector: "Technology / Retail", date: "2025-01-10", category: "both", incident_type: "donation", issue_tags: ["trump-financial", "gaza", "surveillance-tech", "ice"], reason: "Jeff Bezos donated $1M to Trump's 2025 inauguration fund. Amazon Web Services holds Project Nimbus — a $1.2B contract providing cloud and AI to Israeli military. AWS also provides cloud infrastructure to ICE for immigration enforcement data management.", impact: 5, source: "https://www.opensecrets.org/trump/2025-inauguration-donors", source_label: "OpenSecrets" },
-    { company: "Meta (Facebook)", sector: "Technology / Social Media", date: "2025-01-10", category: "trump", incident_type: "donation", issue_tags: ["trump-financial", "media", "disinformation", "civil-rights"], reason: "Mark Zuckerberg donated $1M to Trump's 2025 inauguration fund, ended third-party fact-checking, fired DEI staff, and softened hate speech moderation across Facebook and Instagram. Met privately with Trump at Mar-a-Lago before inauguration.", impact: 5, source: "https://www.cnbc.com/2025/04/23/trump-inauguration-donors-include-meta-amazon-target-delta-ford.html", source_label: "CNBC" },
-    { company: "Palantir Technologies", sector: "AI / Data Analytics", date: "2025-01-01", category: "both", incident_type: "surveillance", issue_tags: ["ice", "surveillance-tech", "gaza", "trump-financial"], reason: "Provides ICE with Maven Smart System AI used in immigration targeting and deportation raids across the U.S. Its Gotham AI platform is used by Israeli military for targeting operations in Gaza. CEO Alex Karp is a major Trump donor and attended inaugural events.", impact: 5, source: "https://theintercept.com", source_label: "The Intercept" },
-    { company: "Boeing", sector: "Defense / Aerospace", date: "2024-10-07", category: "israel", incident_type: "contract", issue_tags: ["gaza", "weapons"], reason: "Supplier of MK-84 2,000-lb bombs and F-15 fighter jets used in Israeli strikes across Gaza. Named in AFSC Companies Profiting from Gaza Genocide. Received over $1B in active Israeli military contracts since October 2023.", impact: 5, source: "https://afsc.org/gaza-genocide-companies", source_label: "AFSC" },
-    { company: "Lockheed Martin", sector: "Defense", date: "2024-10-07", category: "both", incident_type: "contract", issue_tags: ["gaza", "weapons", "iran", "federal-contracts"], reason: "Supplies F-35 jets, JDAM precision bombs, and Hellfire missiles used by Israeli Air Force in Gaza. Also supplying munitions for U.S. military buildup around Iran. Won billions in new federal contracts under Trump administration.", impact: 5, source: "https://afsc.org/gaza-genocide-companies", source_label: "AFSC" },
-    { company: "Raytheon (RTX)", sector: "Defense", date: "2024-10-07", category: "both", incident_type: "contract", issue_tags: ["gaza", "weapons", "iran", "federal-contracts"], reason: "Manufactures Hellfire missiles, Patriot air defense systems, and GBU bombs used by IDF in Gaza. Primary defense contractor to Israel. Also supplying air defense systems positioned around Iran. Massive federal contract winner under Trump.", impact: 5, source: "https://afsc.org/gaza-genocide-companies", source_label: "AFSC" },
-    { company: "Northrop Grumman", sector: "Defense", date: "2024-10-07", category: "both", incident_type: "contract", issue_tags: ["gaza", "weapons", "federal-contracts"], reason: "Supplies electronic warfare systems and propulsion for Israeli Air Force. Named in AFSC Gaza genocide report. Won major new U.S. federal defense contracts under Trump administration's increased defense spending.", impact: 5, source: "https://afsc.org/gaza-genocide-companies", source_label: "AFSC" },
-    { company: "General Dynamics", sector: "Defense", date: "2024-10-07", category: "israel", incident_type: "contract", issue_tags: ["gaza", "weapons"], reason: "Supplies 155mm artillery shells and armored vehicles actively used by IDF in Gaza. Named in AFSC and UN reports. Over $500M in Israeli military contracts since October 2023.", impact: 5, source: "https://afsc.org/gaza-genocide-companies", source_label: "AFSC" },
-    { company: "Google (Alphabet)", sector: "Technology", date: "2024-04-17", category: "both", incident_type: "contract", issue_tags: ["gaza", "surveillance-tech", "trump-financial"], reason: "Project Nimbus: $1.2B cloud and AI contract with Israeli government and military providing targeting and surveillance to IDF. Also donated to Trump 2025 inaugural events. Fired 28 employees arrested protesting the genocide contract.", impact: 5, source: "https://www.aljazeera.com/news/2025/7/1/un-report-lists-companies-complicit-in-israels-genocide-who-are-they", source_label: "Al Jazeera" },
-    { company: "Microsoft", sector: "Technology", date: "2024-10-07", category: "both", incident_type: "contract", issue_tags: ["gaza", "surveillance-tech", "ice"], reason: "Azure cloud provided to Israeli military and intelligence. Also provides cloud to ICE for immigration enforcement. UN report cited Microsoft's role in enabling Israeli military operations. Fired employees who organized Gaza memorial.", impact: 5, source: "https://afsc.org/gaza-genocide-companies", source_label: "AFSC" },
-    { company: "GEO Group", sector: "Private Prison / Detention", date: "2025-01-20", category: "trump", incident_type: "detention", issue_tags: ["ice", "detention", "trump-financial"], reason: "Largest private immigration detention contractor in the U.S., operating 70+ ICE detention facilities. Donated $250,000 to Trump's 2025 inaugural committee. Revenue and stock price surged after Trump's mass deportation executive orders.", impact: 5, source: "https://www.opensecrets.org/trump/2025-inauguration-donors", source_label: "OpenSecrets" },
-    { company: "CoreCivic", sector: "Private Prison / Detention", date: "2025-01-20", category: "trump", incident_type: "detention", issue_tags: ["ice", "detention", "trump-financial"], reason: "Second largest private immigration detention company in the U.S. Holds thousands of ICE detainees. Received billions in expanded federal contracts under Trump administration's mass deportation program.", impact: 5, source: "https://www.opensecrets.org/trump/2025-inauguration-donors", source_label: "OpenSecrets" },
-    { company: "Anduril Industries", sector: "Defense Technology / AI", date: "2025-01-01", category: "both", incident_type: "surveillance", issue_tags: ["ice", "surveillance-tech", "weapons", "trump-financial"], reason: "Provides AI-powered autonomous surveillance towers used by CBP at U.S. southern border for immigration enforcement. Founder Palmer Luckey is a major Trump donor. Also supplies autonomous weapons systems to Israeli military.", impact: 5, source: "https://theintercept.com", source_label: "The Intercept" },
-    { company: "Elbit Systems of America", sector: "Defense Technology", date: "2024-10-07", category: "both", incident_type: "contract", issue_tags: ["gaza", "bds", "weapons", "ice"], reason: "U.S. subsidiary of Israeli weapons manufacturer supplying drones, surveillance systems, and munitions to IDF. Also sells border surveillance systems to CBP used along the U.S.-Mexico border for immigration enforcement.", impact: 5, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "Blackstone", sector: "Private Equity", date: "2025-01-10", category: "trump", incident_type: "investment", issue_tags: ["private-equity", "trump-financial", "food-system", "healthcare"], reason: "CEO Steve Schwarzman donated to Trump's inauguration fund. Blackstone is the world's largest landlord having acquired hundreds of thousands of U.S. homes, drives up rents, and owns major hospital and food distribution assets — extracting profit while making essentials unaffordable.", impact: 5, source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration", source_label: "Brennan Center" },
-    { company: "Oracle", sector: "Technology / Cloud", date: "2025-01-10", category: "both", incident_type: "surveillance", issue_tags: ["ice", "surveillance-tech", "trump-financial", "federal-contracts"], reason: "Co-CEO Larry Ellison hosted Trump fundraiser and donated millions. Oracle provides cloud to ICE for immigration enforcement and to Israeli government agencies. Won billions in U.S. federal cloud contracts under Trump administration.", impact: 4, source: "https://perfectunion.us/trumps-corporate-colluders/", source_label: "More Perfect Union" },
-    { company: "Caterpillar", sector: "Heavy Equipment", date: "2024-10-07", category: "israel", incident_type: "bds", issue_tags: ["gaza", "bds", "weapons"], reason: "Top BDS priority for 20+ years. Caterpillar D9 armored bulldozers are used by IDF to demolish Palestinian homes, hospitals, and UN facilities across Gaza and West Bank. Company refuses to restrict military sales despite repeated calls.", impact: 4, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "Motorola Solutions", sector: "Communications Technology", date: "2025-01-01", category: "israel", incident_type: "surveillance", issue_tags: ["gaza", "bds", "surveillance-tech"], reason: "Provides surveillance cameras, radio communications, and facial recognition systems used at Israeli military checkpoints throughout West Bank and Gaza perimeter. Listed as top BDS priority by USCPR and AFSC.", impact: 4, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "Chevron", sector: "Energy / Oil & Gas", date: "2025-01-10", category: "both", incident_type: "investment", issue_tags: ["trump-financial", "environment", "fossil-fuels", "venezuela"], reason: "Donated to Trump inauguration fund. Holds Israeli-claimed Mediterranean gas extraction rights. Received special Trump administration license to continue Venezuela oil operations despite sanctions — benefiting from selective sanctions enforcement.", impact: 4, source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration", source_label: "Brennan Center" },
-    { company: "Exxon Mobil", sector: "Energy / Oil & Gas", date: "2025-01-10", category: "trump", incident_type: "investment", issue_tags: ["trump-financial", "environment", "fossil-fuels"], reason: "Donated to Trump's 2025 inauguration fund. Received expedited drilling permits on newly opened federal lands under Trump's energy emergency declaration. Successfully lobbied for methane emissions regulation rollback saving billions.", impact: 4, source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration", source_label: "Brennan Center" },
-    { company: "Goldman Sachs", sector: "Finance / Banking", date: "2025-01-10", category: "both", incident_type: "investment", issue_tags: ["trump-financial", "financial-deregulation", "gaza"], reason: "Donated to Trump inauguration fund. Underwrites Israeli government bonds and defense firm stock. Benefited from Trump's rollback of Basel III bank capital requirements, saving Goldman billions in compliance costs.", impact: 4, source: "https://www.brennancenter.org/our-work/research-reports/million-dollar-donors-flooded-trumps-second-inauguration", source_label: "Brennan Center" },
-    { company: "KKR & Co.", sector: "Private Equity", date: "2025-01-10", category: "trump", incident_type: "investment", issue_tags: ["private-equity", "trump-financial", "food-system", "healthcare"], reason: "Major Trump inauguration donor. KKR has acquired hospital chains, nursing homes, and food distribution companies across the U.S. PE model extracts profit while reducing care quality and food access for working Americans.", impact: 4, source: "https://perfectunion.us/trumps-corporate-colluders/", source_label: "More Perfect Union" },
-    { company: "HP Inc.", sector: "Technology", date: "2025-01-01", category: "israel", incident_type: "contract", issue_tags: ["gaza", "bds", "surveillance-tech"], reason: "Provides biometric population registry systems and facial recognition technology used at Israeli military checkpoints in the West Bank. HP Government division holds active contracts with Israeli Defense Ministry.", impact: 4, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "L3Harris Technologies", sector: "Defense Electronics", date: "2024-10-07", category: "israel", incident_type: "contract", issue_tags: ["gaza", "weapons", "surveillance-tech"], reason: "Provides targeting systems, night vision equipment, and surveillance technology used by Israeli Air Force in Gaza. Named in AFSC report and UN inquiry into companies enabling Israeli military operations.", impact: 4, source: "https://afsc.org/gaza-genocide-companies", source_label: "AFSC" },
-    { company: "Intel", sector: "Technology / Semiconductors", date: "2025-01-01", category: "israel", incident_type: "investment", issue_tags: ["gaza", "bds"], reason: "Operates Israel's largest private employer with major R&D centers and chip fabrication plant receiving billions in Israeli government subsidies. Deeply integrated with Israeli defense-technology ecosystem. BDS priority target.", impact: 4, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "JPMorgan Chase", sector: "Finance / Banking", date: "2025-01-10", category: "trump", incident_type: "lobbying", issue_tags: ["trump-financial", "financial-deregulation"], reason: "CEO Jamie Dimon met with Trump at Mar-a-Lago and lobbied for deregulatory agenda. JPMorgan successfully lobbied for rollback of bank capital requirements. Major beneficiary of CFPB dismantlement reducing consumer protection enforcement.", impact: 3, source: "https://perfectunion.us/trumps-corporate-colluders/", source_label: "More Perfect Union" },
-    { company: "Comcast (NBCUniversal)", sector: "Media / Telecommunications", date: "2025-01-10", category: "trump", incident_type: "media", issue_tags: ["trump-financial", "media", "disinformation"], reason: "Donated to Trump's inauguration fund. NBCUniversal softened editorial coverage of Trump administration. Lobbied for FCC deregulation benefiting Comcast's broadband monopoly. Settled lawsuit with Trump ally.", impact: 3, source: "https://perfectunion.us/trumps-corporate-colluders/", source_label: "More Perfect Union" },
-    { company: "Koch Industries", sector: "Conglomerate / Energy", date: "2025-01-10", category: "trump", incident_type: "lobbying", issue_tags: ["trump-financial", "environment", "fossil-fuels", "civil-rights", "labor", "disinformation"], reason: "Koch network funds anti-DEI think tanks, anti-union legislation, fossil fuel deregulation lobbying, and climate denial campaigns. Donated to Trump-aligned candidates. Benefits from every major Trump deregulatory action across energy and labor.", impact: 3, source: "https://perfectunion.us/trumps-corporate-colluders/", source_label: "More Perfect Union" },
-    { company: "Target", sector: "Retail", date: "2025-01-10", category: "trump", incident_type: "donation", issue_tags: ["trump-financial", "civil-rights"], reason: "Donated to Trump's 2025 inauguration fund and reversed DEI commitments in early 2025, ending supplier diversity programs and removing LGBTQ+ inclusive products under political pressure from Trump administration.", impact: 3, source: "https://www.cnbc.com/2025/04/23/trump-inauguration-donors-include-meta-amazon-target-delta-ford.html", source_label: "CNBC" },
-    { company: "Ford Motor Company", sector: "Automotive", date: "2025-01-10", category: "trump", incident_type: "donation", issue_tags: ["trump-financial", "labor", "civil-rights"], reason: "Donated to Trump's 2025 inauguration fund and ended DEI programs. Benefits from Trump's auto import tariffs. Met with Trump administration on manufacturing policy endorsing agenda that weakened UAW collective bargaining.", impact: 3, source: "https://www.cnbc.com/2025/04/23/trump-inauguration-donors-include-meta-amazon-target-delta-ford.html", source_label: "CNBC" },
-    { company: "McDonald's", sector: "Food & Beverage", date: "2025-01-01", category: "israel", incident_type: "other", issue_tags: ["gaza", "bds"], reason: "McDonald's Israel franchise provided thousands of free meals to IDF soldiers during Gaza operations. Global BDS boycott caused significant reported sales losses across multiple markets throughout 2024-2025.", impact: 3, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "Sabra Dipping Company", sector: "Food / Consumer Goods", date: "2025-01-01", category: "israel", incident_type: "investment", issue_tags: ["gaza", "bds"], reason: "Joint venture of PepsiCo and Israeli Strauss Group. Strauss's Maytronics division has donated to Israeli military units serving in occupied territories. Primary global BDS consumer boycott target.", impact: 3, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "RE/MAX", sector: "Real Estate", date: "2025-01-01", category: "israel", incident_type: "investment", issue_tags: ["gaza", "bds"], reason: "RE/MAX Israel franchises actively market and sell properties in West Bank settlements in violation of international law and multiple UN resolutions. Listed as BDS target for complicity in settlement expansion.", impact: 3, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "Starbucks", sector: "Food & Beverage", date: "2025-01-01", category: "israel", incident_type: "bds", issue_tags: ["gaza", "bds", "labor", "union-busting"], reason: "BDS target after suing its own union (Workers United) for expressing Palestinian solidarity. Also faces multiple NLRB complaints for union-busting. Continued Israel franchise operations throughout genocide.", impact: 2, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "Airbnb", sector: "Travel / Technology", date: "2025-01-01", category: "israel", incident_type: "investment", issue_tags: ["gaza", "bds"], reason: "Reversed 2018 decision to remove West Bank settlement listings under legal pressure. Continues listing properties in internationally recognized occupied Palestinian territories, generating revenue from illegal settlements.", impact: 2, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" },
-    { company: "Priceline / Booking Holdings", sector: "Travel / Technology", date: "2025-01-01", category: "israel", incident_type: "investment", issue_tags: ["gaza", "bds"], reason: "Lists Israeli West Bank settlement properties as available accommodations, normalizing and generating revenue from tourism to illegally occupied territory. BDS boycott target.", impact: 3, source: "https://uscpr.org/activist-resource/boycott-divestment-and-sanctions/", source_label: "USCPR" }
-  ];
-
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/companies`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_SERVICE_KEY,
-      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify(coreData)
-  });
-
-  if (!res.ok) throw new Error(`Seed error: ${res.status} — ${await res.text()}`);
-  console.log(`✅ Seeded ${coreData.length} core companies`);
-}
-
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log(`\n🕐 Corporate Accountability Tracker — ${new Date().toISOString()}`);
-  console.log(`📋 Tracking ${SEARCH_TOPICS.length} issue areas\n`);
+  console.log(`\n🕐 Corporate Accountability Tracker Agent`);
+  console.log(`📅 Run date: April 13, 2026`);
+  console.log(`📋 ${SEARCH_TOPICS.length} issue areas tracked\n`);
 
-  // Check DB state
   const rowCount = await getRowCount();
-  console.log(`📊 Current database: ${rowCount} rows\n`);
+  console.log(`📊 Current database: ${rowCount} rows`);
 
-  // Seed if empty
-  if (rowCount === 0) {
-    await seedInitialData();
-  }
-
-  // Get existing keys for deduplication
+  // Get existing keys for dedup
   const existingKeys = await getExistingKeys();
-  console.log(`🔑 ${existingKeys.size} unique incident keys loaded\n`);
+  console.log(`🔑 ${existingKeys.size} existing keys loaded\n`);
 
-  // Determine run mode
-  // If fewer than 100 rows — run 16-month backfill
-  // Otherwise — run last 48 hours only
-  const isBackfill = rowCount < 100;
+  if (rowCount === 0) {
+    // ── FIRST RUN: Full 16-month backfill, NO dedup check ──────────────────
+    console.log('🔄 FIRST RUN — 16-month backfill (Dec 2024 → Apr 2026)');
+    console.log('📌 Deduplication disabled for first run — capturing everything\n');
 
-  if (isBackfill) {
-    console.log('🔄 Running 16-MONTH HISTORICAL BACKFILL across all issue areas...\n');
-    const ranges = getMonthlyRanges(15); // 16 months (0-15)
-    let totalNew = 0;
+    const ranges = getMonthlyRanges(15); // Dec 2024 → Apr 2026
+    let total = 0;
 
     for (const { fromDate, toDate } of ranges) {
-      console.log(`\n📅 Period: ${fromDate} → ${toDate}`);
-      const count = await searchPeriod(fromDate, toDate, existingKeys);
-      totalNew += count;
-      // Pause between months to avoid API rate limits
+      console.log(`\n📅 Month: ${fromDate} → ${toDate}`);
+      // skipDedup=true on first run
+      total += await searchPeriod(fromDate, toDate, existingKeys, true);
       await new Promise(r => setTimeout(r, 3000));
     }
 
-    console.log(`\n✅ Backfill complete. Total new incidents added: ${totalNew}`);
+    const finalCount = await getRowCount();
+    console.log(`\n✅ Backfill complete.`);
+    console.log(`📊 Total incidents added: ${total}`);
+    console.log(`📊 Database now contains: ${finalCount} rows\n`);
+
   } else {
-    // Daily run — last 48 hours
+    // ── DAILY RUN: Last 48 hours, WITH dedup ──────────────────────────────
     const toDate = new Date().toISOString().slice(0, 10);
     const fromDate = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
-    console.log(`🔍 Daily search: ${fromDate} → ${toDate}\n`);
-    const count = await searchPeriod(fromDate, toDate, existingKeys);
-    console.log(`\n✅ Daily run complete. New incidents: ${count}`);
-  }
 
-  const finalCount = await getRowCount();
-  console.log(`\n📊 Database now contains: ${finalCount} incidents\n`);
+    console.log(`🔍 Daily run: ${fromDate} → ${toDate}\n`);
+    const count = await searchPeriod(fromDate, toDate, existingKeys, false);
+
+    const finalCount = await getRowCount();
+    console.log(`\n✅ Daily run complete.`);
+    console.log(`📊 New incidents added: ${count}`);
+    console.log(`📊 Database total: ${finalCount} rows\n`);
+  }
 }
 
 main().catch(err => {
-  console.error('❌ Fatal error:', err);
+  console.error('❌ Fatal error:', err.message);
   process.exit(1);
 });

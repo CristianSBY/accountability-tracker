@@ -1,6 +1,6 @@
 // daily-agent.js
 // Corporate Accountability Tracker
-// Powered by Perplexity API (sonar-pro) — native real-time web search
+// Powered by Perplexity API (sonar) — native real-time web search
 // First run (0 rows): full 16-month backfill, no dedup
 // Daily runs: last 48 hours with dedup
 
@@ -104,7 +104,7 @@ const VALID_ISSUE_TAGS = [
 async function searchTopic(topic, fromDate, toDate) {
   console.log(`  🔍 [${fromDate}→${toDate}] ${topic.label}`);
 
-  const prompt = `You are a corporate accountability researcher. Today is April 13, 2026.
+  const prompt = `You are a corporate accountability researcher. Today is ${new Date().toISOString().slice(0,10)}.
 
 Search for REAL, DOCUMENTED incidents between ${fromDate} and ${toDate} for:
 "${topic.label}" — query: ${topic.query}
@@ -323,13 +323,7 @@ function getMonthlyRanges(monthsBack) {
 async function main() {
   console.log(`\n🕐 Corporate Accountability Tracker — Perplexity Edition`);
   console.log(`📅 Run date: ${new Date().toISOString().slice(0,10)}`);
-  console.log(`📋 ${SEARCH_TOPICS.length} issue areas | sonar-pro real-time search\n`);
-
-  // Validate env vars
-  if (!PERPLEXITY_API_KEY) { console.error('❌ PERPLEXITY_API_KEY is not set'); process.exit(1); }
-  if (!SUPABASE_URL) { console.error('❌ SUPABASE_URL is not set'); process.exit(1); }
-  if (!SUPABASE_SERVICE_KEY) { console.error('❌ SUPABASE_SERVICE_KEY is not set'); process.exit(1); }
-  console.log(`🔑 Perplexity key loaded: ${PERPLEXITY_API_KEY.slice(0,8)}...\n`);
+  console.log(`📋 ${SEARCH_TOPICS.length} issue areas | sonar real-time search\n`);
 
   const rowCount = await getRowCount();
   console.log(`📊 Database: ${rowCount} rows`);

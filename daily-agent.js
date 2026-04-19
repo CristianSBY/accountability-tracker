@@ -157,7 +157,7 @@ If nothing credible found: []`;
         'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'sonar-pro',
+        model: 'sonar',
         messages: [
           {
             role: 'system',
@@ -170,7 +170,6 @@ If nothing credible found: []`;
         ],
         max_tokens: 4000,
         temperature: 0.1,
-        search_recency_filter: 'month',
         return_citations: true
       })
     });
@@ -323,8 +322,14 @@ function getMonthlyRanges(monthsBack) {
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 async function main() {
   console.log(`\n🕐 Corporate Accountability Tracker — Perplexity Edition`);
-  console.log(`📅 Run date: April 13, 2026`);
+  console.log(`📅 Run date: ${new Date().toISOString().slice(0,10)}`);
   console.log(`📋 ${SEARCH_TOPICS.length} issue areas | sonar-pro real-time search\n`);
+
+  // Validate env vars
+  if (!PERPLEXITY_API_KEY) { console.error('❌ PERPLEXITY_API_KEY is not set'); process.exit(1); }
+  if (!SUPABASE_URL) { console.error('❌ SUPABASE_URL is not set'); process.exit(1); }
+  if (!SUPABASE_SERVICE_KEY) { console.error('❌ SUPABASE_SERVICE_KEY is not set'); process.exit(1); }
+  console.log(`🔑 Perplexity key loaded: ${PERPLEXITY_API_KEY.slice(0,8)}...\n`);
 
   const rowCount = await getRowCount();
   console.log(`📊 Database: ${rowCount} rows`);

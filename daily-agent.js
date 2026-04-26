@@ -133,14 +133,14 @@ Impact: 5=mass harm ($2M+ donation, weapons to active conflict, major detention)
 NO markdown. NO backticks. NO explanation before or after. If nothing credible found, return exactly: []`;
 
   try {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    const response = await fetch('https://api.perplexity.ai/agent', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-huge-128k-online',
+        model: 'pro-search',
         messages: [
           {
             role: 'system',
@@ -151,7 +151,7 @@ NO markdown. NO backticks. NO explanation before or after. If nothing credible f
             content: userPrompt
           }
         ],
-       max_tokens: 4000,
+        max_output_tokens: 4000,
         return_citations: true
       })
     });

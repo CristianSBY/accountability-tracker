@@ -1,85 +1,66 @@
 // daily-agent.js
 // Corporate Accountability Tracker
-// Powered by Perplexity API (sonar) — native real-time web search
-// First run (0 rows): full 16-month backfill, no dedup
+// Uses Perplexity Agent API — POST https://api.perplexity.ai/agent
+// Preset: pro-search (built-in web search + reasoning)
+// First run (0 rows): 16-month backfill, no dedup
 // Daily runs: last 48 hours with dedup
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 
-// ─── 55 SEARCH TOPICS ────────────────────────────────────────────────────────
 const SEARCH_TOPICS = [
-  // FINANCIAL SUPPORT
-  { label: "Trump Donations — Inauguration & PACs", query: "corporation donated Trump inauguration fund PAC super PAC", issue_tags: ["trump-financial"] },
-  { label: "Dark Money — Republican Campaigns", query: "corporation dark money republican senate house campaign ALEC", issue_tags: ["trump-financial", "lobbying"] },
-  { label: "Federal Contracts — Post-Inauguration Awards", query: "company awarded federal contract Trump administration no-bid sole source inflated", issue_tags: ["trump-financial", "federal-contracts"] },
-
-  // LEGISLATION & POLICY
-  { label: "Tax Cuts — Billionaire & Corporate Beneficiaries", query: "corporation benefiting Republican tax cut bill carried interest loophole capital gains", issue_tags: ["tax-cuts", "wealth-extraction", "trump-financial"] },
-  { label: "Deregulation — Financial Industry Lobbying", query: "bank financial company lobbying Dodd-Frank CFPB Basel rollback benefit", issue_tags: ["financial-deregulation", "lobbying"] },
-  { label: "Deregulation — Energy & Environment", query: "oil gas coal company EPA Clean Air Act rollback drilling permit benefit", issue_tags: ["environment", "fossil-fuels", "lobbying"] },
-  { label: "Deregulation — Food & Drug Safety", query: "food pharma company FDA USDA safety regulation rollback benefit DOGE", issue_tags: ["healthcare", "food-system", "lobbying"] },
-  { label: "Tariff Exemptions — Insider Lobbying Deals", query: "company received Trump tariff exemption waiver exclusion lobbied", issue_tags: ["tariffs", "trump-financial", "lobbying"] },
-  { label: "Tariff Profiteers — Price Gouging Consumers", query: "company raised prices consumers Trump tariffs while profits increased", issue_tags: ["tariffs", "price-gouging"] },
-  { label: "Social Security & Medicare Cuts — Corporate Beneficiaries", query: "company benefiting Social Security Medicare Medicaid cuts privatization", issue_tags: ["healthcare", "wealth-extraction", "lobbying"] },
-  { label: "Education Privatization — Voucher Profiteers", query: "company profiting school voucher charter education privatization", issue_tags: ["education", "private-equity", "lobbying"] },
-  { label: "Anti-Labor Legislation — NLRB & Union Busting", query: "company benefiting NLRB gutted union busting right to work fired organizers", issue_tags: ["labor", "union-busting", "lobbying"] },
-  { label: "Voting Suppression — Corporate Funders", query: "corporation funding voter suppression gerrymandering restrictive voting ID laws", issue_tags: ["voting-rights", "civil-rights", "lobbying"] },
-  { label: "Anti-DEI — Corporate Funders & Rollbacks", query: "company funding anti-DEI legislation ending diversity programs rollback", issue_tags: ["civil-rights", "trump-financial"] },
-  { label: "Anti-Trans Legislation — Corporate Funders", query: "company donating anti-transgender legislation healthcare sports bathroom bills", issue_tags: ["civil-rights", "lgbtq", "lobbying"] },
-  { label: "Abortion Ban — Corporate Funders", query: "company funding abortion ban legislation restrictive reproductive rights bills", issue_tags: ["civil-rights", "lobbying"] },
-  { label: "Gun Lobby — NRA Corporate Funders", query: "company funding NRA gun lobby against gun control background check legislation", issue_tags: ["lobbying", "trump-financial"] },
-  { label: "Big Tech — Internet & AI Deregulation", query: "tech company lobbying internet regulation AI oversight rollback net neutrality", issue_tags: ["lobbying", "surveillance-tech", "trump-financial"] },
-  { label: "ALEC — Model Legislation Corporate Funders", query: "company funding ALEC American Legislative Exchange Council model bills", issue_tags: ["lobbying", "legislation-support", "trump-financial"] },
-
-  // WEALTH EXTRACTION
-  { label: "Private Equity — Healthcare Extraction", query: "private equity acquired hospital nursing home healthcare profit extraction staff cuts", issue_tags: ["healthcare", "private-equity", "wealth-extraction"] },
-  { label: "Private Equity — Housing Monopolization", query: "private equity hedge fund buying single family homes apartments rents increased evictions", issue_tags: ["private-equity", "wealth-extraction"] },
-  { label: "Private Equity — Food System Monopolization", query: "private equity acquiring food company grocery chain farm consolidation price increase", issue_tags: ["food-system", "private-equity", "wealth-extraction"] },
-  { label: "Private Equity — Media Consolidation", query: "private equity acquiring local news media outlet consolidation layoffs closure", issue_tags: ["media", "private-equity", "wealth-extraction"] },
-  { label: "CEO Pay vs Worker Cuts", query: "company CEO pay increased record while laying off workers cutting wages benefits", issue_tags: ["labor", "wealth-extraction"] },
-  { label: "Stock Buybacks — Shareholders Over Workers", query: "company stock buyback billions shareholders while cutting jobs wages benefits", issue_tags: ["wealth-extraction", "labor"] },
-  { label: "Offshore Tax Havens", query: "company offshore tax haven Cayman Ireland avoiding US taxes Republican bill", issue_tags: ["tax-cuts", "wealth-extraction"] },
-  { label: "Market Manipulation — Policy Trading", query: "executive insider trading stock options tariff policy announcement Trump", issue_tags: ["market-manipulation", "trump-financial"] },
-  { label: "Pharma — Price Gouging Post-Deregulation", query: "pharmaceutical company raised drug prices after Medicaid cuts deregulation", issue_tags: ["healthcare", "price-gouging", "wealth-extraction"] },
-  { label: "Insurance — Denial & Profit Extraction", query: "health insurance company denying claims record profits Medicaid privatization", issue_tags: ["healthcare", "wealth-extraction"] },
-  { label: "Junk Fees — CFPB Rollback Profiteers", query: "company charging junk fees hidden fees after CFPB rule rollback benefit", issue_tags: ["financial-deregulation", "wealth-extraction", "price-gouging"] },
-
-  // MILITARY & CONFLICT
-  { label: "Gaza — Weapons & Munitions Suppliers", query: "company supplying weapons munitions bombs Israel military Gaza genocide", issue_tags: ["gaza", "weapons"] },
-  { label: "Gaza — Technology & AI Targeting", query: "tech company AI surveillance contract Israel IDF targeting Gaza", issue_tags: ["gaza", "surveillance-tech"] },
-  { label: "Gaza — Logistics & Supply Chain", query: "company logistics shipping supply chain Israel military operations Gaza", issue_tags: ["gaza", "weapons"] },
-  { label: "BDS — Israel Occupation Profiteers", query: "company West Bank settlement profit BDS boycott target occupation", issue_tags: ["gaza", "bds"] },
-  { label: "Iran — War Escalation Profiteers", query: "defense company Iran military buildup weapons contract profit escalation", issue_tags: ["iran", "weapons"] },
-  { label: "Congo & Sudan — Conflict Minerals", query: "company sourcing conflict minerals Congo Sudan DRC coltan lithium cobalt", issue_tags: ["congo", "sudan", "conflict-minerals"] },
-  { label: "Yemen & Somalia — Arms Suppliers", query: "defense company weapons contract Yemen Somalia conflict civilian casualties", issue_tags: ["weapons", "conflict"] },
-  { label: "Russia — Sanctions Softening Beneficiaries", query: "company resuming Russia business after Trump softened eased sanctions", issue_tags: ["russia", "sanctions"] },
-  { label: "Venezuela — Sanctions Profiteers", query: "company lobbying Venezuela sanctions exemption oil gas profit", issue_tags: ["venezuela", "sanctions"] },
-
-  // ICE & SURVEILLANCE
-  { label: "ICE — Private Detention Contractors", query: "private prison company ICE detention contract deportation profit expansion", issue_tags: ["ice", "detention"] },
-  { label: "ICE — Technology & Data Contractors", query: "tech company ICE contract data analytics AI surveillance immigration enforcement", issue_tags: ["ice", "surveillance-tech"] },
-  { label: "ICE — Immigrant Labor Hypocrisy", query: "company employing undocumented workers while donating supporting ICE deportation", issue_tags: ["ice", "labor"] },
-  { label: "Surveillance — Selling Data to Enforcement", query: "company selling facial recognition location data police ICE border patrol", issue_tags: ["surveillance-tech", "ice", "civil-rights"] },
-  { label: "Border — Autonomous Surveillance Tech", query: "company autonomous AI surveillance tower border wall CBP contract", issue_tags: ["surveillance-tech", "ice"] },
-  { label: "Prison Tech — Monitoring & Control", query: "company prison jail monitoring technology contract profit expansion", issue_tags: ["detention", "surveillance-tech"] },
-
-  // ENVIRONMENT
-  { label: "Fossil Fuels — Federal Land Drilling", query: "oil gas company drilling permit opened federal land national park monument Trump", issue_tags: ["environment", "fossil-fuels"] },
-  { label: "Climate Denial — Corporate Funders", query: "company funding climate denial think tank Heartland Heritage lobbying against climate", issue_tags: ["environment", "disinformation", "lobbying"] },
-  { label: "Pollution — EPA Enforcement Rollback", query: "company increasing pollution violations after EPA enforcement rollback DOGE cuts", issue_tags: ["environment", "trump-financial"] },
-  { label: "Plastics & Chemicals — Regulation Rollback", query: "plastics chemical company PFAS pesticide regulation rollback benefit", issue_tags: ["environment", "lobbying"] },
-
-  // MEDIA & DISINFORMATION
-  { label: "Media Capture — Editorial Suppression", query: "media company soften coverage Trump lawsuit settlement editorial pressure fired journalist", issue_tags: ["media", "disinformation"] },
-  { label: "Social Media — Disinformation Amplification", query: "social media platform moderation rollback hate speech disinformation profit", issue_tags: ["media", "disinformation"] },
-  { label: "Think Tanks — Dark Money Narratives", query: "think tank PR firm dark money Republican narrative propaganda paid", issue_tags: ["disinformation", "lobbying"] },
-
-  // LABOR
-  { label: "Wage Theft & Safety Violations", query: "company wage theft labor violation workers OSHA cuts enforcement rollback", issue_tags: ["labor", "wealth-extraction"] },
-  { label: "Gig Economy — Worker Misclassification", query: "company gig worker misclassification lobbying against employee status benefits", issue_tags: ["labor", "lobbying"] },
-  { label: "Child Labor — Violations & Lobbying", query: "company child labor violation lobbying weakening child labor protection laws", issue_tags: ["labor", "civil-rights"] }
+  { label: "Trump Donations — Inauguration & PACs", query: "Which U.S. corporations donated to Trump's 2025 inauguration fund, PACs, or super PACs?", issue_tags: ["trump-financial"] },
+  { label: "Dark Money — Republican Campaigns", query: "Which corporations gave dark money to Republican senate or house campaigns or ALEC?", issue_tags: ["trump-financial", "lobbying"] },
+  { label: "Federal Contracts — Post-Inauguration Awards", query: "Which companies received no-bid or inflated federal contracts from the Trump administration?", issue_tags: ["trump-financial", "federal-contracts"] },
+  { label: "Tax Cuts — Billionaire & Corporate Beneficiaries", query: "Which corporations benefited most from Republican tax cuts, carried interest loopholes, or capital gains reductions?", issue_tags: ["tax-cuts", "wealth-extraction", "trump-financial"] },
+  { label: "Deregulation — Financial Industry", query: "Which banks or financial companies lobbied for Dodd-Frank, CFPB, or Basel rollbacks and benefited?", issue_tags: ["financial-deregulation", "lobbying"] },
+  { label: "Deregulation — Energy & Environment", query: "Which oil, gas, or coal companies benefited from EPA, Clean Air Act, or environmental regulation rollbacks?", issue_tags: ["environment", "fossil-fuels", "lobbying"] },
+  { label: "Deregulation — Food & Drug Safety", query: "Which food or pharma companies benefited from FDA or USDA safety regulation rollbacks under DOGE cuts?", issue_tags: ["healthcare", "food-system", "lobbying"] },
+  { label: "Tariff Exemptions — Insider Lobbying", query: "Which companies received Trump tariff exemptions or waivers through lobbying?", issue_tags: ["tariffs", "trump-financial", "lobbying"] },
+  { label: "Tariff Profiteers — Price Gouging", query: "Which companies raised prices on consumers using Trump tariffs as cover while profits increased?", issue_tags: ["tariffs", "price-gouging"] },
+  { label: "Medicare & Medicaid Cuts — Corporate Beneficiaries", query: "Which companies benefited from Social Security, Medicare, or Medicaid cuts or privatization efforts?", issue_tags: ["healthcare", "wealth-extraction", "lobbying"] },
+  { label: "Education Privatization — Voucher Profiteers", query: "Which companies profited from school voucher programs or education privatization under DeVos or similar policies?", issue_tags: ["education", "private-equity", "lobbying"] },
+  { label: "Anti-Labor — NLRB & Union Busting", query: "Which companies benefited from NLRB gutting, fired union organizers, or engaged in union busting under Trump?", issue_tags: ["labor", "union-busting", "lobbying"] },
+  { label: "Voting Suppression — Corporate Funders", query: "Which corporations funded voter suppression legislation, gerrymandering efforts, or restrictive voting ID laws?", issue_tags: ["voting-rights", "civil-rights", "lobbying"] },
+  { label: "Anti-DEI — Corporate Rollbacks", query: "Which companies ended DEI programs or funded anti-DEI legislation under Trump administration pressure?", issue_tags: ["civil-rights", "trump-financial"] },
+  { label: "Anti-Trans Legislation — Corporate Funders", query: "Which companies donated to or funded anti-transgender legislation covering healthcare, sports, or bathrooms?", issue_tags: ["civil-rights", "lgbtq", "lobbying"] },
+  { label: "Abortion Ban — Corporate Funders", query: "Which companies funded abortion ban legislation or restrictive reproductive rights bills?", issue_tags: ["civil-rights", "lobbying"] },
+  { label: "Gun Lobby — NRA Corporate Funders", query: "Which companies fund the NRA or gun lobby and lobbied against gun control or background check legislation?", issue_tags: ["lobbying", "trump-financial"] },
+  { label: "ALEC — Model Legislation Corporate Funders", query: "Which companies fund ALEC or similar organizations that write model legislation for right-wing state bills?", issue_tags: ["lobbying", "legislation-support", "trump-financial"] },
+  { label: "Private Equity — Healthcare Extraction", query: "Which private equity firms acquired hospitals or nursing homes, then cut staff and raised prices?", issue_tags: ["healthcare", "private-equity", "wealth-extraction"] },
+  { label: "Private Equity — Housing Monopolization", query: "Which hedge funds or private equity firms bought single-family homes or apartment complexes driving up rents?", issue_tags: ["private-equity", "wealth-extraction"] },
+  { label: "Private Equity — Food System Monopolization", query: "Which private equity firms acquired food companies, grocery chains, or farms causing price increases?", issue_tags: ["food-system", "private-equity", "wealth-extraction"] },
+  { label: "CEO Pay vs Worker Cuts", query: "Which companies increased CEO pay to record levels while simultaneously laying off workers or cutting benefits?", issue_tags: ["labor", "wealth-extraction"] },
+  { label: "Stock Buybacks — Shareholders Over Workers", query: "Which companies did billions in stock buybacks for shareholders while cutting jobs or wages?", issue_tags: ["wealth-extraction", "labor"] },
+  { label: "Offshore Tax Havens", query: "Which U.S. companies use offshore tax havens in Cayman Islands or Ireland to avoid U.S. taxes?", issue_tags: ["tax-cuts", "wealth-extraction"] },
+  { label: "Market Manipulation — Policy Trading", query: "Which company executives traded stocks ahead of Trump tariff or policy announcements suggesting insider knowledge?", issue_tags: ["market-manipulation", "trump-financial"] },
+  { label: "Pharma — Price Gouging Post-Deregulation", query: "Which pharmaceutical companies raised drug prices after Medicaid cuts or deregulation removed price controls?", issue_tags: ["healthcare", "price-gouging", "wealth-extraction"] },
+  { label: "Insurance — Denial & Profit Extraction", query: "Which health insurance companies denied more claims while posting record profits after Medicaid privatization?", issue_tags: ["healthcare", "wealth-extraction"] },
+  { label: "Junk Fees — CFPB Rollback Profiteers", query: "Which companies added or expanded junk fees and hidden charges after CFPB enforcement was gutted?", issue_tags: ["financial-deregulation", "wealth-extraction", "price-gouging"] },
+  { label: "Gaza — Weapons & Munitions Suppliers", query: "Which U.S. companies supply weapons, bombs, or munitions used by the Israeli military in Gaza?", issue_tags: ["gaza", "weapons"] },
+  { label: "Gaza — Technology & AI Targeting", query: "Which tech companies provide AI, surveillance, or cloud contracts to the Israeli military for Gaza operations?", issue_tags: ["gaza", "surveillance-tech"] },
+  { label: "Gaza — Logistics & Supply Chain", query: "Which logistics or shipping companies support Israeli military supply chains or operations in Gaza?", issue_tags: ["gaza", "weapons"] },
+  { label: "BDS — Israel Occupation Profiteers", query: "Which companies are BDS boycott targets for profiting from Israeli West Bank settlements or occupation?", issue_tags: ["gaza", "bds"] },
+  { label: "Iran — War Escalation Profiteers", query: "Which defense companies have contracts or profit from U.S. military buildup or escalation around Iran?", issue_tags: ["iran", "weapons"] },
+  { label: "Congo & Sudan — Conflict Minerals", query: "Which companies source conflict minerals like coltan, cobalt, or lithium from Congo or Sudan conflict zones?", issue_tags: ["congo", "sudan", "conflict-minerals"] },
+  { label: "Yemen & Somalia — Arms Suppliers", query: "Which U.S. defense companies have weapons contracts tied to Yemen or Somalia conflicts causing civilian casualties?", issue_tags: ["weapons", "conflict"] },
+  { label: "Russia — Sanctions Softening Beneficiaries", query: "Which companies resumed business in Russia after Trump softened or lifted sanctions?", issue_tags: ["russia", "sanctions"] },
+  { label: "Venezuela — Sanctions Profiteers", query: "Which companies lobbied for Venezuela sanctions exemptions and profited from oil or gas access?", issue_tags: ["venezuela", "sanctions"] },
+  { label: "ICE — Private Detention Contractors", query: "Which private prison companies have ICE detention contracts and expanded capacity under Trump deportation orders?", issue_tags: ["ice", "detention"] },
+  { label: "ICE — Technology & Data Contractors", query: "Which tech companies provide ICE with AI, data analytics, or surveillance tools for immigration enforcement?", issue_tags: ["ice", "surveillance-tech"] },
+  { label: "ICE — Immigrant Labor Hypocrisy", query: "Which companies employ undocumented workers while publicly supporting or donating to ICE enforcement?", issue_tags: ["ice", "labor"] },
+  { label: "Surveillance — Selling Data to Enforcement", query: "Which companies sell facial recognition, location data, or personal data to police or ICE?", issue_tags: ["surveillance-tech", "ice", "civil-rights"] },
+  { label: "Border — Autonomous Surveillance Tech", query: "Which companies build or operate autonomous AI surveillance towers or systems for CBP at the U.S. border?", issue_tags: ["surveillance-tech", "ice"] },
+  { label: "Fossil Fuels — Federal Land Drilling", query: "Which oil and gas companies received drilling permits on newly opened federal lands or national monuments under Trump?", issue_tags: ["environment", "fossil-fuels"] },
+  { label: "Climate Denial — Corporate Funders", query: "Which companies fund Heartland Institute, Heritage Foundation, or other climate denial think tanks?", issue_tags: ["environment", "disinformation", "lobbying"] },
+  { label: "Pollution — EPA Enforcement Rollback", query: "Which companies increased pollution violations or emissions after EPA enforcement was gutted by DOGE?", issue_tags: ["environment", "trump-financial"] },
+  { label: "Media Capture — Editorial Suppression", query: "Which media companies softened editorial coverage of Trump or settled lawsuits to avoid administration pressure?", issue_tags: ["media", "disinformation"] },
+  { label: "Social Media — Disinformation Amplification", query: "Which social media companies removed content moderation allowing disinformation and hate speech to spread?", issue_tags: ["media", "disinformation"] },
+  { label: "Think Tanks — Dark Money Narratives", query: "Which think tanks or PR firms are paid by dark money to produce pro-Republican or pro-Trump narratives?", issue_tags: ["disinformation", "lobbying"] },
+  { label: "Wage Theft & Safety Violations", query: "Which companies committed wage theft or safety violations after OSHA enforcement was cut under Trump?", issue_tags: ["labor", "wealth-extraction"] },
+  { label: "Gig Economy — Worker Misclassification", query: "Which companies lobbied against gig worker employee classification to deny workers benefits?", issue_tags: ["labor", "lobbying"] },
+  { label: "Child Labor — Violations & Lobbying", query: "Which companies violated child labor laws or lobbied to weaken child labor protections?", issue_tags: ["labor", "civil-rights"] }
 ];
 
 const VALID_CATEGORIES = ['trump', 'israel', 'both', 'global'];
@@ -100,35 +81,34 @@ const VALID_ISSUE_TAGS = [
   'tax-cuts', 'voting-rights', 'education', 'legislation-support'
 ];
 
-// ─── SEARCH VIA PERPLEXITY API ────────────────────────────────────────────────
+// ─── CALL PERPLEXITY AGENT API ────────────────────────────────────────────────
 async function searchTopic(topic, fromDate, toDate) {
   console.log(`  🔍 [${fromDate}→${toDate}] ${topic.label}`);
 
-  const prompt = `You are a corporate accountability researcher. Today is ${new Date().toISOString().slice(0,10)}.
+  const userPrompt = `Search for real, documented corporate incidents between ${fromDate} and ${toDate}.
 
-Search for REAL, DOCUMENTED incidents between ${fromDate} and ${toDate} for:
-"${topic.label}" — query: ${topic.query}
+Topic: ${topic.label}
+Question: ${topic.query}
 
-Find U.S. or multinational companies involved in ANY of:
-- Donations to Trump, Republican campaigns, PACs, inauguration funds, dark money groups
-- Federal contracts awarded post-inauguration (especially no-bid or after donations)
-- Lobbying FOR: tax cuts for wealthy, deregulation, voter suppression, anti-labor bills, anti-abortion, anti-trans, gun lobby, Medicaid/Medicare/Social Security cuts, education privatization
-- Lobbying AGAINST: minimum wage, worker protections, drug price controls, antitrust, financial regulation, climate legislation
-- Funding ALEC or model-legislation organizations — name specific bills passed
-- Benefiting from tariff exemptions or tariff-driven price gouging
-- Private equity extracting profit from hospitals, housing, food, media — cutting services while raising prices
-- CEO pay increases while laying off workers; stock buybacks over worker pay
+Find U.S. or multinational companies involved in any of:
+- Donations to Trump, Republican campaigns, PACs, inauguration funds, dark money
+- Federal contracts awarded post-inauguration (especially no-bid or after donations)  
+- Lobbying FOR: tax cuts for wealthy, deregulation, voter suppression, anti-labor, anti-abortion, anti-trans, gun lobby, Medicaid/Medicare cuts, education privatization, ALEC model bills
+- Lobbying AGAINST: minimum wage, worker protections, drug price controls, antitrust, financial regulation, climate action
+- Benefiting from specific legislation that passed due to their lobbying (name the bill and amount saved/earned)
+- Tariff exemptions obtained via lobbying, or price gouging using tariffs as cover
+- Private equity extracting profit from hospitals, housing, food, media — cutting services, raising prices
+- CEO pay increases while laying off workers; stock buybacks over wages
 - Offshore tax avoidance benefiting from Republican tax bills
-- Weapons, tech, or logistics supplied to Israel's military in Gaza
-- Arms deals to Yemen, Sudan, Congo, Somalia conflict zones
-- ICE detention contracts, enforcement technology, data sales
-- Surveillance tech sold to law enforcement targeting civilians
+- Weapons, tech, or logistics to Israel's military in Gaza
+- Arms to Yemen, Sudan, Congo, Somalia conflict zones
+- ICE detention contracts, enforcement tech, selling data to law enforcement
 - EPA rollback beneficiaries, climate denial funders
-- Union busting, wage theft, OSHA violations after enforcement cut
+- Union busting, wage theft, OSHA violations after enforcement gutted
 - Media editorial suppression under political pressure
 - Child labor violations or lobbying against protections
 
-Return a JSON array. Each object:
+Return ONLY a raw JSON array. Each object must have:
 {
   "company": "Full legal company name",
   "sector": "Industry sector",
@@ -136,56 +116,61 @@ Return a JSON array. Each object:
   "category": "trump" | "israel" | "both" | "global",
   "incident_type": "donation" | "contract" | "investment" | "lobbying" | "bds" | "surveillance" | "detention" | "labor-violation" | "price-gouging" | "environmental" | "market-manipulation" | "media" | "legislation-support" | "tax-avoidance" | "wealth-extraction" | "other",
   "issue_tags": ["tag1", "tag2"],
-  "reason": "3-5 factual sentences with specific dollar amounts, bill names, contract values, dates, actions. No opinions.",
+  "reason": "3-5 factual sentences. Name specific dollar amounts, bill names, contract values, dates, actions. No opinions.",
   "impact": 1-5,
-  "source": "https://full-url-primary-source.com",
+  "source": "https://full-url-to-primary-source.com",
   "source_label": "Source Name"
 }
 
-Valid issue_tags: ${JSON.stringify(VALID_ISSUE_TAGS)}
+Valid issue_tags only: ${JSON.stringify(VALID_ISSUE_TAGS)}
+category "trump" = supports Trump/Republican agenda
+category "israel" = supports Israeli military/occupation  
+category "both" = both
+category "global" = ICE, private equity, labor, environment, Congo/Sudan — broader harm
 
 Impact: 5=mass harm ($2M+ donation, weapons to active conflict, major detention), 4=significant ($1-2M, major contract, key legislation), 3=moderate (<$1M, lobbying win, price gouging), 2=indirect (PAC, minor lobbying), 1=peripheral
 
-RETURN ONLY RAW JSON ARRAY. No markdown, no backticks, no explanation.
-If nothing credible found: []`;
+NO markdown. NO backticks. NO explanation before or after. If nothing credible found, return exactly: []`;
 
   try {
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    const response = await fetch('https://api.perplexity.ai/agent', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'sonar',
+        model: 'pro-search',
         messages: [
           {
             role: 'system',
-            content: 'You are a corporate accountability researcher. Search the web for real, current, documented corporate incidents. Return only valid JSON arrays with no markdown or explanation.'
+            content: 'You are a corporate accountability researcher. Search the web for real, current, documented corporate incidents. Return only valid JSON arrays with no markdown or explanation. Be specific with dollar amounts, bill names, and dates.'
           },
           {
             role: 'user',
-            content: prompt
+            content: userPrompt
           }
         ],
-        max_tokens: 4000,
-        temperature: 0.1,
+        max_output_tokens: 4000,
         return_citations: true
       })
     });
 
     if (!response.ok) {
       const err = await response.text();
-      console.log(`    ⚠️  Perplexity API ${response.status}: ${err.slice(0, 100)}`);
+      console.log(`    ⚠️  API ${response.status}: ${err.slice(0, 150)}`);
       return [];
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || '';
+
+    // Agent API returns choices[0].message.content
+    const text = data?.choices?.[0]?.message?.content
+      || data?.output?.map(o => o.content || '').join('')
+      || '';
 
     if (!text || text.trim() === '[]') return [];
 
-    // Strip any accidental markdown
     const clean = text
       .replace(/```json\s*/gi, '')
       .replace(/```\s*/gi, '')
@@ -193,10 +178,7 @@ If nothing credible found: []`;
 
     const start = clean.indexOf('[');
     const end = clean.lastIndexOf(']');
-    if (start === -1 || end === -1) {
-      console.log(`    ⚠️  No JSON array in response`);
-      return [];
-    }
+    if (start === -1 || end === -1) return [];
 
     const parsed = JSON.parse(clean.slice(start, end + 1));
     const count = Array.isArray(parsed) ? parsed.length : 0;
@@ -276,13 +258,10 @@ async function writeToSupabase(incidents) {
   return written;
 }
 
-// ─── SEARCH PERIOD ────────────────────────────────────────────────────────────
 async function searchPeriod(fromDate, toDate, existingKeys, skipDedup = false) {
   let newIncidents = [];
-
   for (const topic of SEARCH_TOPICS) {
     const found = await searchTopic(topic, fromDate, toDate);
-
     for (const inc of found) {
       const cleaned = validateIncident(inc);
       if (!cleaned) continue;
@@ -291,17 +270,14 @@ async function searchPeriod(fromDate, toDate, existingKeys, skipDedup = false) {
       newIncidents.push(cleaned);
       existingKeys.add(key);
     }
-
     await new Promise(r => setTimeout(r, 1000));
   }
-
   if (newIncidents.length > 0) {
     const written = await writeToSupabase(newIncidents);
     console.log(`  📝 Wrote ${written} incidents for ${fromDate} → ${toDate}`);
   } else {
     console.log(`  — No new incidents for ${fromDate} → ${toDate}`);
   }
-
   return newIncidents.length;
 }
 
@@ -321,32 +297,27 @@ function getMonthlyRanges(monthsBack) {
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log(`\n🕐 Corporate Accountability Tracker — Perplexity Edition`);
-  console.log(`📅 Run date: ${new Date().toISOString().slice(0,10)}`);
-  console.log(`📋 ${SEARCH_TOPICS.length} issue areas | sonar real-time search\n`);
+  console.log(`\n🕐 Corporate Accountability Tracker — Perplexity Agent API`);
+  console.log(`📅 Run date: ${new Date().toISOString().slice(0, 10)}`);
+  console.log(`📋 ${SEARCH_TOPICS.length} issue areas | pro-search preset\n`);
 
   const rowCount = await getRowCount();
   console.log(`📊 Database: ${rowCount} rows`);
-
   const existingKeys = await getExistingKeys();
   console.log(`🔑 ${existingKeys.size} existing keys\n`);
 
   if (rowCount === 0) {
-    console.log('🔄 FIRST RUN — 16-month backfill (Dec 2024 → Apr 2026)');
+    console.log('🔄 FIRST RUN — 16-month backfill (Dec 2024 → now)');
     console.log('📌 Dedup disabled — capturing everything fresh\n');
-
     const ranges = getMonthlyRanges(15);
     let total = 0;
-
     for (const { fromDate, toDate } of ranges) {
       console.log(`\n📅 ${fromDate} → ${toDate}`);
       total += await searchPeriod(fromDate, toDate, existingKeys, true);
       await new Promise(r => setTimeout(r, 2000));
     }
-
     console.log(`\n✅ Backfill complete. Total added: ${total}`);
     console.log(`📊 Database now: ${await getRowCount()} rows\n`);
-
   } else {
     const toDate = new Date().toISOString().slice(0, 10);
     const fromDate = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);

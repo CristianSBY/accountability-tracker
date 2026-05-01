@@ -12,7 +12,7 @@
     --border: #2a2a3a; --border2: #3a3a50;
     --text: #e8e8f0; --text2: #9090b0; --text3: #5a5a78;
     --accent: #ff3c3c; --trump: #ff6b35; --israel: #4a90d9;
-    --both: #b44fde; --global: #2dce89;
+    --both: #b44fde; --global: #2dce89; --bipartisan: #4dcc4d;
     --green: #2dce89; --yellow: #ffd740;
     --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
   }
@@ -25,51 +25,51 @@
   body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.5; min-height: 100vh; }
   .skip-link { position: absolute; top: -40px; left: 0; background: var(--accent); color: #fff; padding: 8px 16px; z-index: 9999; font-family: var(--mono); transition: top .2s; }
   .skip-link:focus { top: 0; }
-
-  header { border-bottom: 1px solid var(--border); padding: 0 24px; background: var(--surface); position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 56px; }
-  .logo { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
-  .logo-icon { width: 28px; height: 28px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 14px; clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
-  .header-right { display: flex; align-items: center; gap: 12px; }
-  .last-updated { font-family: var(--mono); font-size: 11px; color: var(--text3); }
-  .theme-btn { background: none; border: 1px solid var(--border); color: var(--text2); padding: 5px 10px; font-family: var(--mono); font-size: 11px; cursor: pointer; border-radius: 3px; transition: all .15s; }
+  header { border-bottom: 1px solid var(--border); padding: 0 14px; background: var(--surface); position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-weight: 600; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text); }
+  .logo-icon { width: 26px; height: 26px; flex-shrink: 0; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+  .logo-text { display: none; }
+  @media (min-width: 480px) { .logo-text { display: inline; } }
+  @media (min-width: 768px) { header { padding: 0 24px; } .logo { font-size: 13px; } }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .last-updated { font-family: var(--mono); font-size: 10px; color: var(--text3); display: none; }
+  @media (min-width: 600px) { .last-updated { display: block; } }
+  .theme-btn { background: none; border: 1px solid var(--border); color: var(--text2); padding: 5px 8px; font-family: var(--mono); font-size: 10px; cursor: pointer; border-radius: 3px; transition: all .15s; }
   .theme-btn:hover { border-color: var(--border2); color: var(--text); }
-
   .loading-bar { height: 2px; background: var(--border); position: relative; overflow: hidden; }
   .loading-bar::after { content: ''; position: absolute; left: -40%; width: 40%; height: 100%; background: var(--accent); animation: loading 1s infinite linear; }
   .loading-bar.done { display: none; }
   @keyframes loading { from { left: -40%; } to { left: 100%; } }
-
-  .stats-bar { display: flex; gap: 1px; border-bottom: 1px solid var(--border); background: var(--border); }
-  .stat { flex: 1; background: var(--surface); padding: 14px 20px; display: flex; flex-direction: column; gap: 4px; }
-  .stat-val { font-family: var(--mono); font-size: 20px; font-weight: 600; line-height: 1; }
-  .stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--mono); }
+  .stats-bar { display: flex; gap: 1px; border-bottom: 1px solid var(--border); background: var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .stat { flex: 0 0 auto; background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; min-width: 80px; }
+  .stat-val { font-family: var(--mono); font-size: 18px; font-weight: 600; line-height: 1; }
+  .stat-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); white-space: nowrap; }
   .stat-val.trump { color: var(--trump); } .stat-val.israel { color: var(--israel); }
   .stat-val.both { color: var(--both); } .stat-val.global { color: var(--global); }
+  .stat-val.bipartisan { color: var(--bipartisan); }
   .stat-val.total { color: var(--text); } .stat-val.impact { color: var(--yellow); }
-
-  .controls { padding: 12px 24px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); background: var(--surface2); }
-  .search-wrap { position: relative; flex: 1; min-width: 180px; }
-  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 13px; pointer-events: none; }
-  input[type="search"] { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 12px 7px 30px; font-family: var(--mono); font-size: 12px; border-radius: 3px; outline: none; }
+  .controls { padding: 10px 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); background: var(--surface2); }
+  @media (min-width: 768px) { .controls { padding: 12px 24px; } }
+  .search-wrap { position: relative; flex: 1; min-width: 140px; }
+  .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 13px; pointer-events: none; }
+  input[type="search"] { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 10px 7px 28px; font-family: var(--mono); font-size: 12px; border-radius: 3px; outline: none; }
   input[type="search"]:focus { border-color: var(--border2); }
   input[type="search"]::placeholder { color: var(--text3); }
-  select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 26px 7px 10px; font-family: var(--mono); font-size: 11px; border-radius: 3px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a5a78'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+  select { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 7px 20px 7px 8px; font-family: var(--mono); font-size: 11px; border-radius: 3px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a5a78'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; }
   select:focus { border-color: var(--border2); }
-  .export-btn { background: none; border: 1px solid var(--border); color: var(--text2); padding: 7px 12px; font-family: var(--mono); font-size: 11px; cursor: pointer; border-radius: 3px; letter-spacing: 0.06em; text-transform: uppercase; transition: all .15s; white-space: nowrap; }
+  .export-btn { background: none; border: 1px solid var(--border); color: var(--text2); padding: 7px 10px; font-family: var(--mono); font-size: 11px; cursor: pointer; border-radius: 3px; text-transform: uppercase; transition: all .15s; white-space: nowrap; }
   .export-btn:hover { border-color: var(--green); color: var(--green); }
-
-  /* Issue tag filter pills */
-  .tag-filters { padding: 10px 24px; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--border); background: var(--bg); }
-  .tag-pill { background: none; border: 1px solid var(--border); color: var(--text3); padding: 4px 10px; font-family: var(--mono); font-size: 10px; cursor: pointer; border-radius: 20px; letter-spacing: 0.04em; transition: all .15s; white-space: nowrap; }
+  .tag-filters { padding: 8px 12px; display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--border); background: var(--bg); }
+  @media (min-width: 768px) { .tag-filters { flex-wrap: wrap; padding: 10px 24px; } }
+  .tag-pill { flex-shrink: 0; background: none; border: 1px solid var(--border); color: var(--text3); padding: 4px 10px; font-family: var(--mono); font-size: 10px; cursor: pointer; border-radius: 20px; letter-spacing: 0.04em; transition: all .15s; white-space: nowrap; }
   .tag-pill:hover { border-color: var(--border2); color: var(--text2); }
   .tag-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(255,60,60,.08); }
-  .tag-label { font-family: var(--mono); font-size: 10px; color: var(--text3); padding: 4px 0; align-self: center; white-space: nowrap; }
-
-  .result-count { font-family: var(--mono); font-size: 11px; color: var(--text3); padding: 8px 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
-  .error-banner { background: rgba(255,60,60,.1); border: 1px solid rgba(255,60,60,.3); color: var(--accent); padding: 12px 24px; font-family: var(--mono); font-size: 12px; display: none; }
+  .tag-label { font-family: var(--mono); font-size: 10px; color: var(--text3); padding: 4px 0; align-self: center; white-space: nowrap; flex-shrink: 0; }
+  .result-count { font-family: var(--mono); font-size: 11px; color: var(--text3); padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--bg); }
+  @media (min-width: 768px) { .result-count { padding: 8px 24px; } }
+  .error-banner { background: rgba(255,60,60,.1); border: 1px solid rgba(255,60,60,.3); color: var(--accent); padding: 12px 14px; font-family: var(--mono); font-size: 12px; display: none; }
   .error-banner.visible { display: block; }
-
-  .table-wrap { overflow-x: auto; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   thead th { background: var(--surface); border-bottom: 2px solid var(--border); padding: 10px 14px; text-align: left; font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; user-select: none; white-space: nowrap; transition: color .15s; }
   thead th:hover { color: var(--text); }
@@ -80,18 +80,16 @@
   @keyframes rowIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
   tbody tr:hover { background: var(--surface2); }
   td { padding: 11px 14px; vertical-align: top; }
-
   .company-name { font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 2px; }
   .company-sector { font-family: var(--mono); font-size: 10px; color: var(--text3); }
   .date-cell { font-family: var(--mono); font-size: 11px; color: var(--text2); white-space: nowrap; }
-
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 7px; border-radius: 2px; font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
   .badge-trump { background: rgba(255,107,53,.15); color: var(--trump); border: 1px solid rgba(255,107,53,.3); }
   .badge-israel { background: rgba(74,144,217,.15); color: var(--israel); border: 1px solid rgba(74,144,217,.3); }
   .badge-both { background: rgba(180,79,222,.15); color: var(--both); border: 1px solid rgba(180,79,222,.3); }
   .badge-global { background: rgba(45,206,137,.15); color: var(--global); border: 1px solid rgba(45,206,137,.3); }
+  .badge-bipartisan { background: rgba(77,204,77,.15); color: var(--bipartisan); border: 1px solid rgba(77,204,77,.3); }
   .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-
   .incident-tag { display: inline-block; padding: 2px 6px; border-radius: 2px; font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; }
   .tag-donation { background: rgba(255,215,64,.1); color: var(--yellow); border: 1px solid rgba(255,215,64,.2); }
   .tag-contract { background: rgba(255,60,60,.1); color: var(--accent); border: 1px solid rgba(255,60,60,.2); }
@@ -105,12 +103,11 @@
   .tag-environmental { background: rgba(0,200,100,.1); color: #00c864; border: 1px solid rgba(0,200,100,.2); }
   .tag-market-manipulation { background: rgba(200,0,200,.1); color: #dd44dd; border: 1px solid rgba(200,0,200,.2); }
   .tag-media { background: rgba(100,150,255,.1); color: #8aabff; border: 1px solid rgba(100,150,255,.2); }
+  .tag-child-exploitation { background: rgba(255,0,100,.15); color: #ff3377; border: 1px solid rgba(255,0,100,.3); }
+  .tag-wealth-extraction { background: rgba(255,160,0,.1); color: #ffa000; border: 1px solid rgba(255,160,0,.2); }
   .tag-other { background: rgba(144,144,176,.1); color: var(--text2); border: 1px solid rgba(144,144,176,.2); }
-
-  /* Issue tags on rows */
   .issue-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
   .issue-tag-pill { font-family: var(--mono); font-size: 9px; color: var(--text3); background: var(--surface2); border: 1px solid var(--border); padding: 1px 5px; border-radius: 10px; }
-
   .reason-cell { max-width: 240px; color: var(--text2); line-height: 1.5; font-size: 12px; }
   .impact-cell { white-space: nowrap; }
   .impact-dots { display: flex; gap: 3px; align-items: center; }
@@ -120,85 +117,114 @@
   .impact-score { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-left: 5px; }
   .source-link { color: var(--text3); font-family: var(--mono); font-size: 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; transition: color .15s; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .source-link:hover { color: var(--text); }
-  .source-link::after { content: '↗'; flex-shrink: 0; }
-
-  .empty-state { text-align: center; padding: 80px 24px; font-family: var(--mono); color: var(--text3); }
+  .source-link::after { content: 'ARROW'; flex-shrink: 0; }
+  .empty-state { text-align: center; padding: 60px 24px; font-family: var(--mono); color: var(--text3); }
   .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--text2); }
-
-  footer { border-top: 1px solid var(--border); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: var(--surface); }
+  footer { border-top: 1px solid var(--border); padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; background: var(--surface); }
+  @media (min-width: 768px) { footer { flex-direction: row; justify-content: space-between; align-items: center; padding: 20px 24px; } }
   .footer-text { font-family: var(--mono); font-size: 11px; color: var(--text3); line-height: 1.7; }
   .footer-text a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); }
-  .disclaimer { font-family: var(--mono); font-size: 10px; color: var(--text3); max-width: 400px; line-height: 1.6; border-left: 2px solid var(--border2); padding-left: 12px; }
-
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+  .disclaimer { font-family: var(--mono); font-size: 10px; color: var(--text3); line-height: 1.6; border-left: 2px solid var(--border2); padding-left: 12px; }
+  @media (min-width: 768px) { .disclaimer { max-width: 400px; } }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 14px; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 620px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 32px; }
-  .modal h2 { font-family: var(--mono); font-size: 16px; margin-bottom: 20px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
-  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 20px; padding: 0; line-height: 1; }
-  .modal h3 { font-family: var(--mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin: 20px 0 8px; }
+  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 620px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 20px; }
+  @media (min-width: 768px) { .modal { padding: 32px; } }
+  .modal h2 { font-family: var(--mono); font-size: 15px; margin-bottom: 16px; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 22px; padding: 0; line-height: 1; }
+  .modal h3 { font-family: var(--mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin: 16px 0 8px; }
   .modal p { color: var(--text2); font-size: 13px; line-height: 1.7; }
   .rubric-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  .rubric-table td { padding: 8px 12px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); font-family: var(--mono); }
-  .rubric-table td:first-child { width: 40px; font-weight: 600; color: var(--yellow); text-align: center; }
+  .rubric-table td { padding: 7px 10px; border: 1px solid var(--border); font-size: 12px; color: var(--text2); font-family: var(--mono); }
+  .rubric-table td:first-child { width: 36px; font-weight: 600; color: var(--yellow); text-align: center; }
 
-  @media (max-width: 640px) {
-    .stats-bar { flex-wrap: wrap; }
-    .stat { min-width: 33%; }
-    td, th { padding: 8px 10px; }
-    .reason-cell { max-width: 140px; }
-    .tag-filters { padding: 8px 16px; }
-  }
-  @media (max-width: 480px) {
-    thead th:nth-child(4), td:nth-child(4),
-    thead th:nth-child(7), td:nth-child(7) { display: none; }
+  /* MOBILE CARD LAYOUT */
+  @media (max-width: 767px) {
+    thead { display: none; }
+    table, tbody { display: block; width: 100%; }
+    .table-wrap { overflow-x: visible; }
+    tbody tr {
+      display: block;
+      margin: 10px 12px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      width: calc(100% - 24px);
+      box-shadow: 0 1px 4px rgba(0,0,0,.25);
+      animation: rowIn .2s ease both;
+    }
+    tbody tr:hover { background: var(--surface2); }
+    td {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 7px 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    td:last-child { border-bottom: none; padding-bottom: 0; }
+    td:first-child { padding-top: 0; }
+    td::before {
+      content: attr(data-label);
+      font-family: var(--mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text3);
+    }
+    .reason-cell { max-width: 100%; font-size: 13px; line-height: 1.6; }
+    .source-link { max-width: 100%; white-space: normal; word-break: break-all; overflow: visible; text-overflow: unset; }
   }
 </style>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to content</a>
-
 <header>
-  <div class="logo"><div class="logo-icon">⬡</div>Corporate Accountability Tracker</div>
+  <div class="logo">
+    <div class="logo-icon">&#x2B21;</div>
+    <span class="logo-text">Corporate Accountability Tracker</span>
+  </div>
   <div class="header-right">
     <span class="last-updated" id="lastUpdated">Loading...</span>
-    <button class="theme-btn" onclick="toggleTheme()">◐ Theme</button>
+    <button class="theme-btn" onclick="toggleTheme()">&#x25D0; Theme</button>
   </div>
 </header>
-
 <div class="loading-bar" id="loadingBar"></div>
 <div class="error-banner" id="errorBanner"></div>
-
 <div class="stats-bar">
-  <div class="stat"><span class="stat-val total" id="statTotal">—</span><span class="stat-label">Total</span></div>
-  <div class="stat"><span class="stat-val trump" id="statTrump">—</span><span class="stat-label">Pro-Trump</span></div>
-  <div class="stat"><span class="stat-val israel" id="statIsrael">—</span><span class="stat-label">Pro-Israel</span></div>
-  <div class="stat"><span class="stat-val both" id="statBoth">—</span><span class="stat-label">Both</span></div>
-  <div class="stat"><span class="stat-val global" id="statGlobal">—</span><span class="stat-label">Global Harm</span></div>
-  <div class="stat"><span class="stat-val impact" id="statAvg">—</span><span class="stat-label">Avg. Impact</span></div>
+  <div class="stat"><span class="stat-val total" id="statTotal">&#x2014;</span><span class="stat-label">Total</span></div>
+  <div class="stat"><span class="stat-val trump" id="statTrump">&#x2014;</span><span class="stat-label">Pro-Trump</span></div>
+  <div class="stat"><span class="stat-val israel" id="statIsrael">&#x2014;</span><span class="stat-label">Pro-Israel</span></div>
+  <div class="stat"><span class="stat-val both" id="statBoth">&#x2014;</span><span class="stat-label">Both</span></div>
+  <div class="stat"><span class="stat-val bipartisan" id="statBipartisan">&#x2014;</span><span class="stat-label">Bipartisan</span></div>
+  <div class="stat"><span class="stat-val global" id="statGlobal">&#x2014;</span><span class="stat-label">Global Harm</span></div>
+  <div class="stat"><span class="stat-val impact" id="statAvg">&#x2014;</span><span class="stat-label">Avg Impact</span></div>
 </div>
-
 <div class="controls">
   <div class="search-wrap">
-    <span class="search-icon">⌕</span>
-    <input type="search" id="searchInput" placeholder="Search companies, reasons, sectors..." oninput="applyFilters()">
+    <span class="search-icon">&#x2315;</span>
+    <input type="search" id="searchInput" placeholder="Search companies, reasons..." oninput="applyFilters()">
   </div>
   <select id="catFilter" onchange="applyFilters()">
     <option value="">All Categories</option>
     <option value="trump">Pro-Trump</option>
     <option value="israel">Pro-Israel</option>
     <option value="both">Both</option>
+    <option value="bipartisan">Bipartisan</option>
     <option value="global">Global Harm</option>
   </select>
   <select id="impactFilter" onchange="applyFilters()">
-    <option value="">All Impact Levels</option>
-    <option value="5">5 – Severe</option>
-    <option value="4">4 – High</option>
-    <option value="3">3 – Moderate</option>
-    <option value="2">2 – Low</option>
-    <option value="1">1 – Minimal</option>
+    <option value="">All Impact</option>
+    <option value="5">5 &#x2013; Severe</option>
+    <option value="4">4 &#x2013; High</option>
+    <option value="3">3 &#x2013; Moderate</option>
+    <option value="2">2 &#x2013; Low</option>
+    <option value="1">1 &#x2013; Minimal</option>
   </select>
   <select id="typeFilter" onchange="applyFilters()">
-    <option value="">All Incident Types</option>
+    <option value="">All Types</option>
     <option value="donation">Donation</option>
     <option value="contract">Gov't Contract</option>
     <option value="investment">Investment</option>
@@ -211,29 +237,27 @@
     <option value="environmental">Environmental</option>
     <option value="market-manipulation">Market Manipulation</option>
     <option value="media">Media</option>
+    <option value="child-exploitation">Child Exploitation</option>
+    <option value="wealth-extraction">Wealth Extraction</option>
   </select>
   <select id="sectorFilter" onchange="applyFilters()"></select>
-  <button class="export-btn" onclick="exportCSV()">↓ Export CSV</button>
+  <button class="export-btn" onclick="exportCSV()">&#x2193; CSV</button>
 </div>
-
-<!-- Issue Tag Filter Pills -->
 <div class="tag-filters" id="tagFilters">
-  <span class="tag-label">Filter by issue →</span>
+  <span class="tag-label">Filter &#x2192;</span>
 </div>
-
 <div class="result-count" id="resultCount"></div>
-
 <main id="main">
   <div class="table-wrap">
     <table role="grid">
       <thead>
         <tr>
-          <th onclick="sortBy('company')" id="th-company">Company <span class="sort-arrow">↕</span></th>
-          <th onclick="sortBy('date')" id="th-date">Date <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('company')" id="th-company">Company <span class="sort-arrow">&#x2195;</span></th>
+          <th onclick="sortBy('date')" id="th-date">Date <span class="sort-arrow">&#x2195;</span></th>
           <th>Category</th>
           <th>Type</th>
           <th>Reason / Incident</th>
-          <th onclick="sortBy('impact')" id="th-impact">Impact <span class="sort-arrow">↕</span></th>
+          <th onclick="sortBy('impact')" id="th-impact">Impact <span class="sort-arrow">&#x2195;</span></th>
           <th>Source</th>
         </tr>
       </thead>
@@ -245,250 +269,204 @@
     </div>
   </div>
 </main>
-
 <footer>
   <div class="footer-text">
-    Corporate Accountability Tracker · Updated daily at 7:00 AM CT<br>
-    Sources: FEC, OpenSecrets, AFSC, USCPR, More Perfect Union, UN Reports, The Intercept, ProPublica ·
-    <a href="#" onclick="openAbout();return false;">About & Methodology</a>
+    Corporate Accountability Tracker &middot; Updated daily at 7:00 AM CT<br>
+    Sources: FEC, OpenSecrets, AFSC, USCPR, More Perfect Union, UN Reports, The Intercept, ProPublica &middot;
+    <a href="#" onclick="openAbout();return false;">About &amp; Methodology</a>
   </div>
   <div class="disclaimer">
-    For informational purposes only. All entries cite verifiable public records. Statements reflect documented donations, contracts, investments, or NGO designations — not editorial opinion.
+    For informational purposes only. All entries cite verifiable public records. Statements reflect documented donations, contracts, investments, or NGO designations.
   </div>
 </footer>
-
 <div class="modal-overlay" id="aboutModal" role="dialog" aria-modal="true">
   <div class="modal">
-    <h2>About & Methodology <button class="modal-close" onclick="closeAbout()">×</button></h2>
+    <h2>About &amp; Methodology <button class="modal-close" onclick="closeAbout()">&#x00D7;</button></h2>
     <h3>Purpose</h3>
-    <p>A transparent, daily-updated registry of U.S. and multinational corporations that financially support, enable, or profit from: the Trump administration's agenda, Israeli military operations in Gaza, ICE detention and deportation, private equity extraction of essential services, environmental destruction, labor violations, surveillance of civilians, global conflict, and disinformation.</p>
+    <p>A transparent, daily-updated registry of corporations that financially support, enable, or profit from: the Trump administration's agenda, Israeli military operations in Gaza, ICE detention, private equity extraction, environmental destruction, labor violations, surveillance, child exploitation, bipartisan corporate corruption, and disinformation.</p>
+    <h3>Categories</h3>
+    <p><strong>Pro-Trump</strong> &mdash; supports Trump/Republican agenda. <strong>Pro-Israel</strong> &mdash; supports Israeli military/occupation. <strong>Both</strong> &mdash; both. <strong>Bipartisan</strong> &mdash; funds both parties to protect corporate interests. <strong>Global Harm</strong> &mdash; systemic harm not tied to one party.</p>
     <h3>Impact Score Rubric</h3>
     <table class="rubric-table">
-      <tr><td>5</td><td>Direct mass harm enablement — weapons to active conflict zones, major detention infrastructure, $2M+ donations, surveillance contracts used against civilians at scale</td></tr>
-      <tr><td>4</td><td>Significant harmful activity — $1M–$2M donation, major defense/ICE contract, top BDS priority, PE acquisition destroying essential services, major deregulation beneficiary</td></tr>
-      <tr><td>3</td><td>Moderate involvement — &lt;$1M donation, lobbying win, investment in harmful sector, data sales to enforcement, settlement complicity</td></tr>
-      <tr><td>2</td><td>Indirect support — PAC, industry association, minor lobbying, peripheral investment ties, DEI rollback</td></tr>
-      <tr><td>1</td><td>Peripheral or emerging concern — early stage, unconfirmed, minor indirect involvement</td></tr>
+      <tr><td>5</td><td>Direct mass harm: weapons to active conflict, child exploitation, $2M+ donation, major detention</td></tr>
+      <tr><td>4</td><td>Significant: $1-2M donation, major defense/ICE contract, top BDS target, key legislation</td></tr>
+      <tr><td>3</td><td>Moderate: &lt;$1M donation, lobbying win, price gouging, deregulation benefit</td></tr>
+      <tr><td>2</td><td>Indirect: PAC, minor lobbying, DEI rollback, peripheral ties</td></tr>
+      <tr><td>1</td><td>Peripheral or emerging concern</td></tr>
     </table>
-    <h3>Issue Areas Tracked</h3>
-    <p>Gaza genocide · Israeli occupation · ICE detention & deportation · Congo & Sudan conflict minerals · Venezuela sanctions · Iran war posturing · Private equity food system extraction · Private equity healthcare extraction · Federal contract corruption · Tariff profiteering · Union busting · Environmental destruction · Surveillance tech · Data broker abuse · Market manipulation · CFPB gutting · Pharma price gouging · Media capture · Disinformation · Russia sanctions softening · Anti-DEI corporate rollbacks · Anti-trans legislation funding · Farmland monopolization</p>
     <h3>Update Schedule</h3>
-    <p>An AI agent with web search access runs daily at 7:00 AM CT, searching across 30 issue areas for new corporate incidents. All findings are validated, scored, and written to the database automatically. Historical incidents remain permanently logged — nothing is ever deleted.</p>
+    <p>An AI agent runs daily at 7:00 AM CT searching 90+ issue areas. Historical incidents remain permanently logged.</p>
     <h3>Data Sources</h3>
-    <p>FEC / OpenSecrets · More Perfect Union · USCPR BDS Boycott List · AFSC Gaza Genocide Companies · Brennan Center · The Intercept · ProPublica · UN Human Rights Reports · Al Jazeera · Mondoweiss · Reuters · AP · Bloomberg · Democracy Now</p>
+    <p>FEC &middot; OpenSecrets &middot; AFSC &middot; USCPR &middot; More Perfect Union &middot; Brennan Center &middot; The Intercept &middot; ProPublica &middot; UN Human Rights Reports &middot; Al Jazeera &middot; Reuters &middot; AP &middot; Bloomberg &middot; Democracy Now &middot; Sludge</p>
   </div>
 </div>
-
 <script>
 const SUPABASE_URL = 'https://buoejnbupewtwbzdgxmp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b2VqbmJ1cGV3dHdiemRneG1wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzIwMTM2MSwiZXhwIjoyMDkyNzc3MzYxfQ.ZQqxSnnnsditW1h-DYBhP6DhzJnt3k3Pgutl19tO8o4';
-
 const ISSUE_TAG_LABELS = {
-  'trump-financial': '💰 Trump Financial', 'gaza': '🇵🇸 Gaza', 'weapons': '🚀 Weapons',
-  'ice': '🚔 ICE', 'detention': '🔒 Detention', 'surveillance-tech': '👁 Surveillance',
-  'congo': '🌍 Congo', 'sudan': '🌍 Sudan', 'conflict-minerals': '⛏ Conflict Minerals',
-  'venezuela': '🇻🇪 Venezuela', 'iran': '🇮🇷 Iran', 'food-system': '🌾 Food System',
-  'private-equity': '💼 Private Equity', 'healthcare': '🏥 Healthcare',
-  'federal-contracts': '📋 Federal Contracts', 'tariffs': '📦 Tariffs',
-  'labor': '✊ Labor', 'union-busting': '🚫 Union Busting',
-  'environment': '🌱 Environment', 'fossil-fuels': '🛢 Fossil Fuels',
-  'market-manipulation': '📈 Market Manipulation', 'financial-deregulation': '🏦 Deregulation',
-  'sanctions': '⚖️ Sanctions', 'russia': '🇷🇺 Russia', 'conflict': '⚔️ Conflict',
-  'civil-rights': '✊ Civil Rights', 'lgbtq': '🏳️‍🌈 LGBTQ+',
-  'media': '📺 Media', 'disinformation': '📢 Disinformation',
-  'lobbying': '🏛 Lobbying', 'bds': '✡ BDS', 'price-gouging': '💸 Price Gouging'
+  'trump-financial':'💰 Trump Financial','gaza':'🇵🇸 Gaza','weapons':'🚀 Weapons',
+  'ice':'🚔 ICE','detention':'🔒 Detention','surveillance-tech':'👁 Surveillance',
+  'congo':'🌍 Congo','sudan':'🌍 Sudan','conflict-minerals':'⛏ Conflict Minerals',
+  'venezuela':'🇻🇪 Venezuela','iran':'🇮🇷 Iran','food-system':'🌾 Food System',
+  'private-equity':'💼 Private Equity','healthcare':'🏥 Healthcare',
+  'federal-contracts':'📋 Fed Contracts','tariffs':'📦 Tariffs',
+  'labor':'✊ Labor','union-busting':'🚫 Union Busting',
+  'environment':'🌱 Environment','fossil-fuels':'🛢 Fossil Fuels',
+  'market-manipulation':'📈 Market Manip.','financial-deregulation':'🏦 Deregulation',
+  'sanctions':'⚖️ Sanctions','russia':'🇷🇺 Russia','conflict':'⚔️ Conflict',
+  'civil-rights':'✊ Civil Rights','lgbtq':'🏳️‍🌈 LGBTQ+',
+  'media':'📺 Media','disinformation':'📢 Disinfo',
+  'lobbying':'🏛 Lobbying','bds':'✡ BDS','price-gouging':'💸 Price Gouging',
+  'wealth-extraction':'💰 Wealth Extraction','tax-cuts':'✂️ Tax Cuts',
+  'voting-rights':'🗳 Voting Rights','education':'🎓 Education',
+  'legislation-support':'📜 Legislation','child-exploitation':'🚨 Child Exploitation'
 };
-
-let allData = [], filtered = [], sortCol = 'impact', sortDir = -1, activeTag = null;
-
-async function fetchData() {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/companies?select=*&order=impact.desc,date.desc`, {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+let allData=[],filtered=[],sortCol='impact',sortDir=-1,activeTag=null;
+async function fetchData(){
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/companies?select=*&order=impact.desc,date.desc`,{headers:{'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`}});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
     return await res.json();
-  } catch (err) {
-    document.getElementById('errorBanner').textContent = `Failed to load: ${err.message}`;
+  }catch(err){
+    document.getElementById('errorBanner').textContent=`Failed to load: ${err.message}`;
     document.getElementById('errorBanner').classList.add('visible');
-    return [];
+    return[];
   }
 }
-
-window.addEventListener('DOMContentLoaded', async () => {
-  const data = await fetchData();
+window.addEventListener('DOMContentLoaded',async()=>{
+  const data=await fetchData();
   document.getElementById('loadingBar').classList.add('done');
-  if (!data.length) return;
-  allData = data;
-  buildTagPills();
-  populateSectors();
-  applyFilters();
-  updateStats();
-  setLastUpdated();
-  scheduleNextRefresh();
+  if(!data.length)return;
+  allData=data;
+  buildTagPills();populateSectors();applyFilters();updateStats();setLastUpdated();scheduleNextRefresh();
 });
-
-function buildTagPills() {
-  const tagCounts = {};
-  allData.forEach(c => (c.issue_tags || []).forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
-  const container = document.getElementById('tagFilters');
-  const sorted = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
-  sorted.forEach(([tag, count]) => {
-    const btn = document.createElement('button');
-    btn.className = 'tag-pill';
-    btn.dataset.tag = tag;
-    btn.textContent = `${ISSUE_TAG_LABELS[tag] || tag} (${count})`;
-    btn.onclick = () => toggleTag(tag);
+function buildTagPills(){
+  const tagCounts={};
+  allData.forEach(c=>(c.issue_tags||[]).forEach(t=>{tagCounts[t]=(tagCounts[t]||0)+1;}));
+  const container=document.getElementById('tagFilters');
+  [...container.querySelectorAll('.tag-pill')].forEach(el=>el.remove());
+  Object.entries(tagCounts).sort((a,b)=>b[1]-a[1]).forEach(([tag,count])=>{
+    const btn=document.createElement('button');
+    btn.className='tag-pill';btn.dataset.tag=tag;
+    btn.textContent=`${ISSUE_TAG_LABELS[tag]||tag} (${count})`;
+    btn.onclick=()=>toggleTag(tag);
     container.appendChild(btn);
   });
 }
-
-function toggleTag(tag) {
-  activeTag = activeTag === tag ? null : tag;
-  document.querySelectorAll('.tag-pill').forEach(p => {
-    p.classList.toggle('active', p.dataset.tag === activeTag);
-  });
+function toggleTag(tag){
+  activeTag=activeTag===tag?null:tag;
+  document.querySelectorAll('.tag-pill').forEach(p=>p.classList.toggle('active',p.dataset.tag===activeTag));
   applyFilters();
 }
-
-function populateSectors() {
-  const sectors = [...new Set(allData.map(c => c.sector).filter(Boolean))].sort();
-  const sel = document.getElementById('sectorFilter');
-  sel.innerHTML = '<option value="">All Sectors</option>';
-  sectors.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
+function populateSectors(){
+  const sectors=[...new Set(allData.map(c=>c.sector).filter(Boolean))].sort();
+  const sel=document.getElementById('sectorFilter');
+  sel.innerHTML='<option value="">All Sectors</option>';
+  sectors.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
 }
-
-function applyFilters() {
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  const cat = document.getElementById('catFilter').value;
-  const impact = document.getElementById('impactFilter').value;
-  const type = document.getElementById('typeFilter').value;
-  const sector = document.getElementById('sectorFilter').value;
-
-  filtered = allData.filter(c => {
-    if (cat && c.category !== cat) return false;
-    if (impact && c.impact !== +impact) return false;
-    if (type && c.incident_type !== type) return false;
-    if (sector && c.sector !== sector) return false;
-    if (activeTag && !(c.issue_tags || []).includes(activeTag)) return false;
-    if (q) {
-      const hay = `${c.company} ${c.sector} ${c.reason} ${c.source_label} ${(c.issue_tags||[]).join(' ')}`.toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
+function applyFilters(){
+  const q=document.getElementById('searchInput').value.toLowerCase().trim();
+  const cat=document.getElementById('catFilter').value;
+  const impact=document.getElementById('impactFilter').value;
+  const type=document.getElementById('typeFilter').value;
+  const sector=document.getElementById('sectorFilter').value;
+  filtered=allData.filter(c=>{
+    if(cat&&c.category!==cat)return false;
+    if(impact&&c.impact!==+impact)return false;
+    if(type&&c.incident_type!==type)return false;
+    if(sector&&c.sector!==sector)return false;
+    if(activeTag&&!(c.issue_tags||[]).includes(activeTag))return false;
+    if(q){const hay=`${c.company} ${c.sector} ${c.reason} ${c.source_label} ${(c.issue_tags||[]).join(' ')}`.toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
-
-  sortData(); renderTable();
+  sortData();renderTable();
 }
-
-function sortBy(col) {
-  if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = col === 'impact' ? -1 : 1; }
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
-  const th = document.getElementById('th-' + col);
-  if (th) { th.classList.add('sorted'); th.querySelector('.sort-arrow').textContent = sortDir === 1 ? '↑' : '↓'; }
-  sortData(); renderTable();
+function sortBy(col){
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=col==='impact'?-1:1;}
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sorted'));
+  const th=document.getElementById('th-'+col);
+  if(th){th.classList.add('sorted');th.querySelector('.sort-arrow').textContent=sortDir===1?'↑':'↓';}
+  sortData();renderTable();
 }
-
-function sortData() {
-  filtered.sort((a, b) => {
-    let av, bv;
-    if (sortCol === 'company') { av = (a.company||'').toLowerCase(); bv = (b.company||'').toLowerCase(); }
-    else if (sortCol === 'date') { av = a.date||''; bv = b.date||''; }
-    else { av = a.impact||0; bv = b.impact||0; }
-    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+function sortData(){
+  filtered.sort((a,b)=>{
+    let av,bv;
+    if(sortCol==='company'){av=(a.company||'').toLowerCase();bv=(b.company||'').toLowerCase();}
+    else if(sortCol==='date'){av=a.date||'';bv=b.date||'';}
+    else{av=a.impact||0;bv=b.impact||0;}
+    return av<bv?-sortDir:av>bv?sortDir:0;
   });
 }
-
-function renderTable() {
-  const tbody = document.getElementById('tableBody');
-  const empty = document.getElementById('emptyState');
-  document.getElementById('resultCount').textContent = `Showing ${filtered.length} of ${allData.length} companies`;
-  if (!filtered.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  tbody.innerHTML = filtered.map((c, i) => {
-    const tags = (c.issue_tags || []).slice(0, 4).map(t =>
-      `<span class="issue-tag-pill">${ISSUE_TAG_LABELS[t] || t}</span>`
-    ).join('');
-    const dots = [1,2,3,4,5].map(n =>
-      `<div class="impact-dot${n <= c.impact ? ' filled' + (c.impact === 5 ? ' severe' : '') : ''}"></div>`
-    ).join('');
-    return `
-    <tr style="animation-delay:${Math.min(i*.015,.3)}s">
-      <td>
-        <div class="company-name">${esc(c.company)}</div>
-        <div class="company-sector">${esc(c.sector||'')}</div>
-        ${tags ? `<div class="issue-tags">${tags}</div>` : ''}
-      </td>
-      <td class="date-cell">${formatDate(c.date)}</td>
-      <td>${badge(c.category)}</td>
-      <td>${incidentTag(c.incident_type)}</td>
-      <td class="reason-cell">${esc(c.reason||'')}</td>
-      <td class="impact-cell">
-        <div class="impact-dots">${dots}<span class="impact-score">${c.impact}/5</span></div>
-      </td>
-      <td><a href="${esc(c.source||'#')}" target="_blank" rel="noopener noreferrer" class="source-link" title="${esc(c.source||'')}">${esc(c.source_label||'Source')}</a></td>
+function renderTable(){
+  const tbody=document.getElementById('tableBody');
+  const empty=document.getElementById('emptyState');
+  document.getElementById('resultCount').textContent=`Showing ${filtered.length} of ${allData.length} companies`;
+  if(!filtered.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=filtered.map((c,i)=>{
+    const tags=(c.issue_tags||[]).slice(0,5).map(t=>`<span class="issue-tag-pill">${ISSUE_TAG_LABELS[t]||t}</span>`).join('');
+    const dots=[1,2,3,4,5].map(n=>`<div class="impact-dot${n<=c.impact?' filled'+(c.impact===5?' severe':''):''}"></div>`).join('');
+    return`<tr style="animation-delay:${Math.min(i*.015,.3)}s">
+      <td data-label="Company"><div class="company-name">${esc(c.company)}</div><div class="company-sector">${esc(c.sector||'')}</div>${tags?`<div class="issue-tags">${tags}</div>`:''}</td>
+      <td data-label="Date" class="date-cell">${formatDate(c.date)}</td>
+      <td data-label="Category">${badge(c.category)}</td>
+      <td data-label="Type">${incidentTag(c.incident_type)}</td>
+      <td data-label="Reason / Incident" class="reason-cell">${esc(c.reason||'')}</td>
+      <td data-label="Impact" class="impact-cell"><div class="impact-dots">${dots}<span class="impact-score">${c.impact}/5</span></div></td>
+      <td data-label="Source"><a href="${esc(c.source||'#')}" target="_blank" rel="noopener noreferrer" class="source-link" title="${esc(c.source||'')}">${esc(c.source_label||'Source')}</a></td>
     </tr>`;
   }).join('');
 }
-
-function updateStats() {
-  document.getElementById('statTotal').textContent = allData.length;
-  document.getElementById('statTrump').textContent = allData.filter(c => c.category === 'trump').length;
-  document.getElementById('statIsrael').textContent = allData.filter(c => c.category === 'israel').length;
-  document.getElementById('statBoth').textContent = allData.filter(c => c.category === 'both').length;
-  document.getElementById('statGlobal').textContent = allData.filter(c => c.category === 'global').length;
-  const avg = allData.length ? (allData.reduce((s,c)=>s+(c.impact||0),0)/allData.length).toFixed(1) : '—';
-  document.getElementById('statAvg').textContent = avg;
+function updateStats(){
+  document.getElementById('statTotal').textContent=allData.length;
+  document.getElementById('statTrump').textContent=allData.filter(c=>c.category==='trump').length;
+  document.getElementById('statIsrael').textContent=allData.filter(c=>c.category==='israel').length;
+  document.getElementById('statBoth').textContent=allData.filter(c=>c.category==='both').length;
+  document.getElementById('statBipartisan').textContent=allData.filter(c=>c.category==='bipartisan').length;
+  document.getElementById('statGlobal').textContent=allData.filter(c=>c.category==='global').length;
+  const avg=allData.length?(allData.reduce((s,c)=>s+(c.impact||0),0)/allData.length).toFixed(1):'—';
+  document.getElementById('statAvg').textContent=avg;
 }
-
-function badge(cat) {
-  const map = { trump:['badge-trump','🇺🇸 Pro-Trump'], israel:['badge-israel','✡ Pro-Israel'], both:['badge-both','⬡ Both'], global:['badge-global','🌍 Global'] };
-  const [cls, label] = map[cat] || ['badge-global','Global'];
-  return `<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
+function badge(cat){
+  const map={trump:['badge-trump','🇺🇸 Pro-Trump'],israel:['badge-israel','✡ Pro-Israel'],both:['badge-both','⬡ Both'],bipartisan:['badge-bipartisan','⚖️ Bipartisan'],global:['badge-global','🌍 Global']};
+  const[cls,label]=map[cat]||['badge-global','Global'];
+  return`<span class="badge ${cls}"><span class="badge-dot"></span>${label}</span>`;
 }
-
-function incidentTag(type) {
-  const map = { donation:'tag-donation|Donation', contract:'tag-contract|Gov\'t Contract', investment:'tag-investment|Investment', lobbying:'tag-lobbying|Lobbying', bds:'tag-bds|BDS Target', surveillance:'tag-surveillance|Surveillance', detention:'tag-detention|Detention', 'labor-violation':'tag-labor-violation|Labor Violation', 'price-gouging':'tag-price-gouging|Price Gouging', environmental:'tag-environmental|Environmental', 'market-manipulation':'tag-market-manipulation|Market Manip.', media:'tag-media|Media' };
-  const val = map[type] || `tag-other|${type||'Other'}`;
-  const [cls, label] = val.split('|');
-  return `<span class="incident-tag ${cls}">${label}</span>`;
+function incidentTag(type){
+  const map={'donation':'tag-donation|Donation','contract':'tag-contract|Gov\'t Contract','investment':'tag-investment|Investment','lobbying':'tag-lobbying|Lobbying','bds':'tag-bds|BDS Target','surveillance':'tag-surveillance|Surveillance','detention':'tag-detention|Detention','labor-violation':'tag-labor-violation|Labor Violation','price-gouging':'tag-price-gouging|Price Gouging','environmental':'tag-environmental|Environmental','market-manipulation':'tag-market-manipulation|Market Manip.','media':'tag-media|Media','child-exploitation':'tag-child-exploitation|Child Exploitation','wealth-extraction':'tag-wealth-extraction|Wealth Extraction','legislation-support':'tag-lobbying|Legislation','tax-avoidance':'tag-price-gouging|Tax Avoidance'};
+  const val=map[type]||`tag-other|${type||'Other'}`;
+  const[cls,label]=val.split('|');
+  return`<span class="incident-tag ${cls}">${label}</span>`;
 }
-
-function formatDate(d) {
-  if (!d) return '—';
-  const [y,m,day] = d.split('-');
-  return `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${+day}, ${y}`;
+function formatDate(d){
+  if(!d)return'—';
+  const[y,m,day]=d.split('-');
+  return`${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${+day}, ${y}`;
 }
-
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function exportCSV() {
-  const headers = ['Company','Sector','Date','Category','Incident Type','Issue Tags','Reason','Impact','Source Label','Source URL'];
-  const rows = filtered.map(c => [c.company,c.sector,c.date,c.category,c.incident_type,(c.issue_tags||[]).join('; '),c.reason,c.impact,c.source_label,c.source].map(v=>`"${String(v||'').replace(/"/g,'""')}"`));
-  const csv = [headers.map(h=>`"${h}"`), ...rows].map(r=>r.join(',')).join('\r\n');
-  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})), download: `accountability-tracker-${new Date().toISOString().slice(0,10)}.csv` });
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function exportCSV(){
+  const headers=['Company','Sector','Date','Category','Incident Type','Issue Tags','Reason','Impact','Source Label','Source URL'];
+  const rows=filtered.map(c=>[c.company,c.sector,c.date,c.category,c.incident_type,(c.issue_tags||[]).join('; '),c.reason,c.impact,c.source_label,c.source].map(v=>`"${String(v||'').replace(/"/g,'""')}"`));
+  const csv=[headers.map(h=>`"${h}"`), ...rows].map(r=>r.join(',')).join('\r\n');
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:`accountability-tracker-${new Date().toISOString().slice(0,10)}.csv`});
   a.click();
 }
-
-function scheduleNextRefresh() {
-  const now = new Date(), next = new Date(now);
+function scheduleNextRefresh(){
+  const now=new Date(),next=new Date(now);
   next.setHours(7,0,0,0);
-  if (now >= next) next.setDate(next.getDate()+1);
-  setTimeout(async () => { allData = await fetchData(); buildTagPills(); applyFilters(); updateStats(); setLastUpdated(); scheduleNextRefresh(); }, next-now);
+  if(now>=next)next.setDate(next.getDate()+1);
+  setTimeout(async()=>{allData=await fetchData();buildTagPills();applyFilters();updateStats();setLastUpdated();scheduleNextRefresh();},next-now);
 }
-
-function setLastUpdated() {
-  document.getElementById('lastUpdated').textContent = 'Updated: ' +
-    new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' · ' +
+function setLastUpdated(){
+  document.getElementById('lastUpdated').textContent='Updated: '+
+    new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+
     new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZoneName:'short'});
 }
-
-function toggleTheme() { document.documentElement.dataset.theme = document.documentElement.dataset.theme==='dark'?'light':'dark'; }
-function openAbout() { document.getElementById('aboutModal').classList.add('open'); }
-function closeAbout() { document.getElementById('aboutModal').classList.remove('open'); }
-document.addEventListener('keydown', e => { if (e.key==='Escape') closeAbout(); });
-document.getElementById('aboutModal').addEventListener('click', e => { if (e.target===e.currentTarget) closeAbout(); });
+function toggleTheme(){document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';}
+function openAbout(){document.getElementById('aboutModal').classList.add('open');}
+function closeAbout(){document.getElementById('aboutModal').classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAbout();});
+document.getElementById('aboutModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAbout();});
 </script>
 </body>
 </html>

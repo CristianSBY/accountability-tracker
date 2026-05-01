@@ -375,7 +375,57 @@ const SEARCH_TOPICS = [
     issue_tags: ["trump-financial", "financial-deregulation", "lobbying"]
   },
 
-  // ── EXISTING CORE TOPICS ─────────────────────────────────────────────────────
+  // ── BIPARTISAN DONORS & COMPLICIT COMPANIES ───────────────────────────────────
+  {
+    label: "Bipartisan — Democrats Who Voted for Israel Arms",
+    query: "Democratic senators representatives voted for Israel weapons aid funding despite Gaza genocide 2025 2026",
+    issue_tags: ["gaza", "weapons", "lobbying"]
+  },
+  {
+    label: "Bipartisan — Wall Street Donates to Both Parties",
+    query: "Wall Street banks hedge funds donating to both Republican and Democratic campaigns while lobbying deregulation",
+    issue_tags: ["trump-financial", "financial-deregulation", "lobbying"]
+  },
+  {
+    label: "Bipartisan — Pharma Lobbying Both Parties Against Drug Pricing",
+    query: "pharmaceutical companies donating to both Democrats and Republicans to block drug price negotiation legislation",
+    issue_tags: ["healthcare", "price-gouging", "lobbying"]
+  },
+  {
+    label: "Bipartisan — Defense Contractors Fund Both Parties",
+    query: "defense contractors Raytheon Boeing Lockheed funding both Democratic Republican campaigns while winning weapons contracts",
+    issue_tags: ["weapons", "lobbying", "federal-contracts", "gaza"]
+  },
+  {
+    label: "Bipartisan — Tech Giants Lobby Both Parties Against Regulation",
+    query: "Google Apple Meta Amazon Microsoft lobbying both parties against antitrust regulation privacy legislation",
+    issue_tags: ["lobbying", "surveillance-tech", "financial-deregulation"]
+  },
+  {
+    label: "Bipartisan — Private Equity Buys Both Parties",
+    query: "private equity firms donating to both Democrats and Republicans to protect carried interest loophole",
+    issue_tags: ["private-equity", "tax-cuts", "lobbying", "wealth-extraction"]
+  },
+  {
+    label: "Bipartisan — Insurance & Hospital Lobby Both Parties",
+    query: "health insurance hospital lobby donating to both parties to block Medicare for All public option",
+    issue_tags: ["healthcare", "lobbying", "wealth-extraction"]
+  },
+  {
+    label: "Bipartisan — Oil Gas Lobby Both Parties",
+    query: "oil gas companies donating to both Democrats and Republicans blocking climate legislation",
+    issue_tags: ["environment", "fossil-fuels", "lobbying"]
+  },
+  {
+    label: "Bipartisan — AIPAC Funds Democrats and Republicans",
+    query: "AIPAC United Democracy Project funding both Democratic and Republican candidates pro-Israel lobby",
+    issue_tags: ["gaza", "lobbying", "bds"]
+  },
+  {
+    label: "Bipartisan — Telecom Lobby Both Parties Net Neutrality",
+    query: "Comcast AT&T Verizon Spectrum lobbying both parties against net neutrality consumer protections",
+    issue_tags: ["lobbying", "media", "financial-deregulation"]
+  },
   {
     label: "Trump Donations — Inauguration & PACs",
     query: "Which U.S. corporations donated to Trump's 2025 inauguration fund, PACs, or super PACs?",
@@ -488,7 +538,7 @@ const SEARCH_TOPICS = [
   }
 ];
 
-const VALID_CATEGORIES = ['trump', 'israel', 'both', 'global'];
+const VALID_CATEGORIES = ['trump', 'israel', 'both', 'global', 'bipartisan'];
 const VALID_INCIDENT_TYPES = [
   'donation', 'contract', 'investment', 'lobbying', 'bds',
   'surveillance', 'detention', 'labor-violation', 'price-gouging',
@@ -553,10 +603,11 @@ Each object MUST have ALL these fields:
 
 Valid issue_tags ONLY from this list: ${JSON.stringify(VALID_ISSUE_TAGS)}
 
-category "trump" = supports/benefits from Trump/Republican agenda
+category "trump" = supports/benefits from Trump/Republican agenda specifically
 category "israel" = supports Israeli military/occupation
 category "both" = both Trump and Israel
-category "global" = ICE, private equity, child exploitation, opioids, Epstein, labor — systemic harm
+category "bipartisan" = donates to or lobbies BOTH parties, playing both sides for corporate gain
+category "global" = ICE, private equity, child exploitation, opioids, Epstein, labor — systemic harm not party-specific
 
 Impact scoring:
 5 = Direct mass harm: weapons to active conflict, child exploitation, $2M+ donation, mass detention, genocide enablement
